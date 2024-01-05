@@ -232,3 +232,7 @@ void SurvivalAgentPlugin::Render(float dt) const
 }
 
 
+IPluginBase* Register()
+{
+	return new SurvivalAgentPlugin();
+}

@@ -1,5 +1,7 @@
 #pragma once
 #include "IBaseInterface.h"
+#include "Exam_HelperStructs.h"
+
 
 class IExamInterface : public IBaseInterface
 {

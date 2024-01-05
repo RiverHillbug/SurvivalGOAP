@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\inc\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\inc\;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\lib\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\_DEMO_DEBUG\</OutDir>
     <TargetName>GPP_Plugin_d</TargetName>
@@ -87,7 +87,7 @@
     <OutDir>$(SolutionDir)..\_DEMO_RELEASE\</OutDir>
     <IntDir>_Temp\$(Configuration)\</IntDir>
     <TargetName>GPP_Plugin</TargetName>
-    <IncludePath>$(SolutionDir)..\inc\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\inc\;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,7 +143,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;GPPExam2019_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\inc\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\inc\;$(SolutionDir)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
