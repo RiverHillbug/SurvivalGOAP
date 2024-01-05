@@ -1,8 +1,17 @@
 #include "stdafx.h"
 #include "SurvivalAgentPlugin.h"
 #include "IExamInterface.h"
+#include "EliteAI\EliteData\EBlackboard.h"
+#include "EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h"
+#include "GOAPPlanner.h"
 
 using namespace std;
+
+SurvivalAgentPlugin::SurvivalAgentPlugin()
+	: m_pGOAPPlanner{ new GOAPPlanner() }
+	, m_pBlackboard{ new Elite::Blackboard() }
+{
+}
 
 //Called only once, during initialization
 void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& info)
@@ -16,6 +25,8 @@ void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& inf
 	info.Student_Name = "Sabriye Seher Sevik"; //No special characters allowed. Highscores won't work with special characters.
 	info.Student_Class = "2DAE09";
 	info.LB_Password = "Doridadu";//Don't use a real password! This is only to prevent other students from overwriting your highscore!
+
+	m_pBlackboard->SetData(AGENT_PARAM, this);
 }
 
 //Called only once
@@ -231,6 +242,21 @@ void SurvivalAgentPlugin::Render(float dt) const
 	m_pInterface->Draw_SolidCircle(m_Target, 0.7f, { 0, 0 }, { 1, 0, 0 });
 }
 
+UINT SurvivalAgentPlugin::SelectFirstAvailableInventorySlot()
+{
+	for (int i{ 0 }; i < int(m_pInterface->Inventory_GetCapacity()); ++i)
+	{
+		ItemInfo info;
+		if (!m_pInterface->Inventory_GetItem(i, info))
+		{
+			m_InventorySlot = i;
+			return m_InventorySlot;
+		}
+	}
+
+	std::cout << "Inventory full.\n";
+	return INVALID_INVENTORY_SLOT;
+}
 
 IPluginBase* Register()
 {

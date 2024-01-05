@@ -26,11 +26,11 @@ namespace Elite
 
 /* --- Data --- */
 //Blackboard
-#include "framework/EliteAI/EliteData/EBlackboard.h"
+#include "EliteAI/EliteData/EBlackboard.h"
 
 /* --- Decision Making Structures --- */
 //FSM & BT
-#include "framework/EliteAI/EliteDecisionMaking/EliteFiniteStateMachine/EFiniteStateMachine.h"
+#include "EliteAI/EliteDecisionMaking/EliteFiniteStateMachine/EFiniteStateMachine.h"
 
 
 //#endif

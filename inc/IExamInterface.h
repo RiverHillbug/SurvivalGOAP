@@ -2,6 +2,7 @@
 #include "IBaseInterface.h"
 #include "Exam_HelperStructs.h"
 
+#define INVALID_INVENTORY_SLOT UINT(- 1)
 
 class IExamInterface : public IBaseInterface
 {

@@ -8,6 +8,9 @@
 //#ifndef ELITE_FINITE_STATE_MACHINE
 //#define ELITE_FINITE_STATE_MACHINE
 #pragma once
+#include <map>
+#include <stack>
+#include "EliteAI\EliteDecisionMaking\EDecisionMaking.h"
 
 namespace Elite
 {
@@ -20,7 +23,6 @@ namespace Elite
 		virtual void OnEnter(Blackboard* pBlackboard) {};
 		virtual void OnExit(Blackboard* pBlackboard) {};
 		virtual void Update(Blackboard* pBlackboard, float deltaTime) {};
-
 	};
 
 	class FSMCondition
@@ -37,20 +39,13 @@ namespace Elite
 		FiniteStateMachine(FSMState* startState, Blackboard* pBlackboard);
 		virtual ~FiniteStateMachine();
 		
-		void AddTransition(FSMState* startState, FSMState* toState, FSMCondition* transition);
 		virtual void Update(float deltaTime) override;
-		Elite::Blackboard* GetBlackboard() const;
-
-	private:
+		class Blackboard* GetBlackboard() const;
 		void ChangeState(FSMState* newState);
-	private:
-		typedef std::pair<FSMCondition*, FSMState*> TransitionStatePair;
-		typedef std::vector<TransitionStatePair> Transitions;
 
-		std::map<FSMState*, Transitions> m_Transitions; //Key is the state, value are all the transitions for that current state 
+	private:
 		FSMState* m_pCurrentState;
 		Blackboard* m_pBlackboard = nullptr; // takes ownership of the blackboard
 	};
-
 }
 //#endif
