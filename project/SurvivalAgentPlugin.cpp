@@ -13,9 +13,9 @@ void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& inf
 
 	//Information for the leaderboards!
 	info.BotName = "MinionExam";
-	info.Student_Name = "JOHN CENA"; //No special characters allowed. Highscores won't work with special characters.
-	info.Student_Class = "2DAE00";
-	info.LB_Password = "TheChampIsHere123!";//Don't use a real password! This is only to prevent other students from overwriting your highscore!
+	info.Student_Name = "Sabriye Seher Sevik"; //No special characters allowed. Highscores won't work with special characters.
+	info.Student_Class = "2DAE09";
+	info.LB_Password = "Doridadu";//Don't use a real password! This is only to prevent other students from overwriting your highscore!
 }
 
 //Called only once
@@ -47,7 +47,7 @@ void SurvivalAgentPlugin::InitGameDebugParams(GameDebugParams& params)
 	params.SpawnPurgeZonesOnMiddleClick = true;
 	params.PrintDebugMessages = true;
 	params.ShowDebugItemNames = true;
-	params.Seed = 0; //-1 = don't set seed. Any other number = fixed seed //TIP: use Seed = int(time(nullptr)) for pure randomness
+	params.Seed = int(time(nullptr)); //-1 = don't set seed. Any other number = fixed seed //TIP: use Seed = int(time(nullptr)) for pure randomness
 }
 
 //Only Active in DEBUG Mode
@@ -228,7 +228,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 void SurvivalAgentPlugin::Render(float dt) const
 {
 	//This Render function should only contain calls to Interface->Draw_... functions
-	m_pInterface->Draw_SolidCircle(m_Target, .7f, { 0,0 }, { 1, 0, 0 });
+	m_pInterface->Draw_SolidCircle(m_Target, 0.7f, { 0, 0 }, { 1, 0, 0 });
 }
 
 
