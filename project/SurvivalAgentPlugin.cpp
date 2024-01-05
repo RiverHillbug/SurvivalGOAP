@@ -1,8 +1,14 @@
 #include "stdafx.h"
 #include "SurvivalAgentPlugin.h"
 #include "IExamInterface.h"
+#include "BlackboardTypes.h"
 #include "EliteAI\EliteData\EBlackboard.h"
 #include "EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h"
+#include "GrabFoodAction.h"
+#include "GrabMedkitAction.h"
+#include "GrabWeaponAction.h"
+#include "FindWeaponAction.h"
+#include "UseWeaponAction.h"
 #include "GOAPPlanner.h"
 
 using namespace std;
@@ -11,6 +17,8 @@ SurvivalAgentPlugin::SurvivalAgentPlugin()
 	: m_pGOAPPlanner{ new GOAPPlanner() }
 	, m_pBlackboard{ new Elite::Blackboard() }
 {
+	m_Goals.insert({ KILL_ENEMY_PARAM, true });
+	m_Goals.insert({ STAY_ALIVE_PARAM, true });
 }
 
 //Called only once, during initialization
@@ -27,6 +35,18 @@ void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& inf
 	info.LB_Password = "Doridadu";//Don't use a real password! This is only to prevent other students from overwriting your highscore!
 
 	m_pBlackboard->SetData(AGENT_PARAM, this);
+
+	const FindWeaponAction* pFindWeaponAction = new FindWeaponAction();
+	const GrabWeaponAction* pGrabWeaponAction = new GrabWeaponAction();
+	const GrabFoodAction* pGrabFoodAction = new GrabFoodAction();
+	const GrabMedkitAction* pGrabMedkitAction = new GrabMedkitAction();
+	const UseWeaponAction* pUseWeaponAction = new UseWeaponAction();
+
+	m_AvailableActions.insert(pFindWeaponAction);
+	m_AvailableActions.insert(pGrabWeaponAction);
+	m_AvailableActions.insert(pGrabMedkitAction);
+	m_AvailableActions.insert(pGrabFoodAction);
+	m_AvailableActions.insert(pUseWeaponAction);
 }
 
 //Called only once
@@ -66,6 +86,7 @@ void SurvivalAgentPlugin::InitGameDebugParams(GameDebugParams& params)
 void SurvivalAgentPlugin::Update_Debug(float dt)
 {
 	//Demo Event Code
+
 	//In the end your Agent should be able to walk around without external input
 	if (m_pInterface->Input_IsMouseButtonUp(Elite::InputMouseButton::eLeft))
 	{

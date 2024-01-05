@@ -8,6 +8,13 @@
     <ClCompile Include="GOAPPlanner.cpp" />
     <ClCompile Include="GOAPAction.cpp" />
     <ClCompile Include="EBlackboard.cpp" />
+    <ClCompile Include="GrabItemAction.cpp" />
+    <ClCompile Include="GrabWeaponAction.cpp" />
+    <ClCompile Include="GrabMedkitAction.cpp" />
+    <ClCompile Include="GrabFoodAction.cpp" />
+    <ClCompile Include="UseItemAction.cpp" />
+    <ClCompile Include="UseWeaponAction.cpp" />
+    <ClCompile Include="FindWeaponAction.cpp" />
     <ClCompile Include="DataProvider.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -20,6 +27,13 @@
     <ClInclude Include="GOAPPlanner.h" />
     <ClInclude Include="GOAPAction.h" />
     <ClInclude Include="BlackboardTypes.h" />
+    <ClInclude Include="GrabItemAction.h" />
+    <ClInclude Include="GrabWeaponAction.h" />
+    <ClInclude Include="GrabMedkitAction.h" />
+    <ClInclude Include="GrabFoodAction.h" />
+    <ClInclude Include="UseItemAction.h" />
+    <ClInclude Include="UseWeaponAction.h" />
+    <ClInclude Include="FindWeaponAction.h" />
     <ClInclude Include="DataProvider.h" />
   </ItemGroup>
 </Project>
