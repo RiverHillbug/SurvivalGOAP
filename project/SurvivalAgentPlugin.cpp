@@ -279,6 +279,12 @@ UINT SurvivalAgentPlugin::SelectFirstAvailableInventorySlot()
 	return INVALID_INVENTORY_SLOT;
 }
 
+bool SurvivalAgentPlugin::TryPlan(OUT std::queue<const GOAPAction*>& plan)
+{
+	plan = m_pGOAPPlanner->Plan(m_pBlackboard);
+	return !plan.empty();
+}
+
 IPluginBase* Register()
 {
 	return new SurvivalAgentPlugin();

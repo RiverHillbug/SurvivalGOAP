@@ -5,26 +5,11 @@
 /*=============================================================================*/
 // EStateMachine.h: Other implementation of a FSM
 /*=============================================================================*/
-//#ifndef ELITE_FINITE_STATE_MACHINE
-//#define ELITE_FINITE_STATE_MACHINE
+
 #pragma once
-#include <map>
-#include <stack>
-#include "EliteAI\EliteDecisionMaking\EDecisionMaking.h"
 
 namespace Elite
 {
-	class FSMState
-	{
-	public:
-		FSMState(){}
-		virtual ~FSMState() = default;
-
-		virtual void OnEnter(Blackboard* pBlackboard) {};
-		virtual void OnExit(Blackboard* pBlackboard) {};
-		virtual void Update(Blackboard* pBlackboard, float deltaTime) {};
-	};
-
 	class FSMCondition
 	{
 	public:
@@ -33,19 +18,40 @@ namespace Elite
 		virtual bool Evaluate(Blackboard* pBlackboard) const = 0;
 	};
 
-	class FiniteStateMachine final : public Elite::IDecisionMaking
+	class FSMState
 	{
 	public:
-		FiniteStateMachine(FSMState* startState, Blackboard* pBlackboard);
-		virtual ~FiniteStateMachine();
+		FSMState(){}
+		virtual ~FSMState() = default;
+		void AddTransition(FSMState* toState, const FSMCondition* condition);
+		inline std::unordered_map<FSMState*, const FSMCondition*> GetTransitions() const { return m_Transitions; }
+
+		virtual void OnEnter(class Blackboard* pBlackboard);
+		virtual void Update(class Blackboard* pBlackboard, float deltaTime) {}
+		virtual void OnExit(class Blackboard* pBlackboard) {}
+
+		virtual bool CanEnter() const { return true; }
+		inline bool IsDone() const { return m_IsDone; }
+
+	protected:
+		bool m_IsDone{ false };
+
+	private:
+		std::unordered_map<FSMState*, const FSMCondition*> m_Transitions;
+	};
+
+	class FiniteStateMachine final
+	{
+	public:
+		FiniteStateMachine(FSMState* startState, class Blackboard* pBlackboard);
+		~FiniteStateMachine();
 		
-		virtual void Update(float deltaTime) override;
-		class Blackboard* GetBlackboard() const;
-		void ChangeState(FSMState* newState);
+		void Update(float deltaTime);
+		inline class Blackboard* GetBlackboard() const { return m_pBlackboard; }
+		void EnterState(FSMState* newState);
 
 	private:
 		FSMState* m_pCurrentState;
-		Blackboard* m_pBlackboard = nullptr; // takes ownership of the blackboard
+		class Blackboard* m_pBlackboard = nullptr; // takes ownership of the blackboard
 	};
 }
-//#endif

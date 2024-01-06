@@ -21,7 +21,7 @@ public:
 	inline bool RequiresInRange() const { return m_RequiresInRange; }
 	inline bool IsDone() const { return m_IsDone; }
 	virtual void Reset();
-	virtual bool Perform(Elite::Blackboard* pBlackboard) = 0;
+	virtual bool Perform(Elite::Blackboard* pBlackboard) const = 0;
 
 protected:
 	int m_Cost{ 1 };

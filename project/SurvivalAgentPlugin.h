@@ -28,6 +28,10 @@ public:
 	inline const std::set<const class GOAPAction*>& GetAvailableActions() const { return m_AvailableActions; }
 	inline const WorldState& GetGoals() const { return m_Goals; }
 
+	bool TryPlan(OUT std::queue<const class GOAPAction*>& plan);
+	inline void SetPlan(const std::queue<const class GOAPAction*>& plan) { m_CurrentPlan = plan; }
+	inline std::queue<const class GOAPAction*>& GetPlan() { return m_CurrentPlan; }
+
 private:
 	//Interface, used to request data from/perform actions with the AI Framework
 	class IExamInterface* m_pInterface{ nullptr };

@@ -3,19 +3,18 @@
 /*=============================================================================*/
 // StatesAndTransitions.h: Implementation of the state/transition classes
 /*=============================================================================*/
-#ifndef ELITE_APPLICATION_FSM_STATES_TRANSITIONS
-#define ELITE_APPLICATION_FSM_STATES_TRANSITIONS
 
+#pragma once
 #include "EliteAI/EliteData/EBlackboard.h"
 #include "EliteAI/EliteDecisionMaking/EliteFiniteStateMachine/EFiniteStateMachine.h"
 
 using namespace Elite;
 
-class IdleState : public FSMState
+class PlanningState : public FSMState
 {
 public:
-	IdleState() {};
-	~IdleState() {};
+	PlanningState() {};
+	~PlanningState() {};
 	void Update(Blackboard* pBlackboard, float deltaTime) override;
 };
 
@@ -24,6 +23,7 @@ class MoveToState : public FSMState
 public:
 	MoveToState() {};
 	~MoveToState() {};
+	void OnEnter(Blackboard* pBlackboard) override;
 	void Update(Blackboard* pBlackboard, float deltaTime) override;
 };
 
@@ -35,4 +35,10 @@ public:
 	void Update(Blackboard* pBlackboard, float deltaTime) override;
 };
 
-#endif
+class NeedsRange : public FSMCondition
+{
+public:
+	NeedsRange() = default;
+	~NeedsRange() = default;
+	bool Evaluate(Blackboard* pBlackboard) const override;
+};

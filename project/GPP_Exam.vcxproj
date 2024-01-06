@@ -185,7 +185,6 @@
     <ClInclude Include="BlackboardTypes.h" />
     <ClInclude Include="DecisionMaking\FiniteStateMachines\GOAPStates.h" />
     <ClInclude Include="EliteAI\EliteData\EBlackboard.h" />
-    <ClInclude Include="EliteAI\EliteDecisionMaking\EDecisionMaking.h" />
     <ClInclude Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h" />
     <ClInclude Include="FindWeaponAction.h" />
     <ClInclude Include="DataProvider.h" />
@@ -197,7 +196,9 @@
     <ClInclude Include="GrabWeaponAction.h" />
     <ClInclude Include="SurvivalAgentPlugin.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="UseFoodAction.h" />
     <ClInclude Include="UseItemAction.h" />
+    <ClInclude Include="UseMedkitAction.h" />
     <ClInclude Include="UseWeaponAction.h" />
   </ItemGroup>
   <ItemGroup>
@@ -217,7 +218,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="UseFoodAction.cpp" />
     <ClCompile Include="UseItemAction.cpp" />
+    <ClCompile Include="UseMedkitAction.cpp" />
     <ClCompile Include="UseWeaponAction.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
