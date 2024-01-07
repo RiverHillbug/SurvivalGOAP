@@ -8,3 +8,4 @@
 #include "Actions\UseWeaponAction.h"
 #include "Actions\UseFoodAction.h"
 #include "Actions\UseMedkitAction.h"
+#include "Actions\ExploreAction.h"

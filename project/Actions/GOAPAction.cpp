@@ -1,7 +1,14 @@
 #include "stdafx.h"
 #include "GOAPAction.h"
 #include "EliteAI\EliteData\EBlackboard.h"
+#include "Helpers.h"
 #include <iostream>
+
+
+void GOAPAction::OnExit(Elite::Blackboard* pBlackboard) const
+{
+	Helpers::ApplyState(m_Effects, pBlackboard);
+}
 
 void GOAPAction::AddPrecondition(const std::string& name, const bool value)
 {

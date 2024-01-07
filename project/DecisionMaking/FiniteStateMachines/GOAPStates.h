@@ -38,6 +38,7 @@ public:
 	PerformActionState() {};
 	~PerformActionState() {};
 
+	void OnEnter(Elite::Blackboard* pBlackboard) const override;
 	void Update(Elite::Blackboard* pBlackboard, float deltaTime) const override;
 	void OnExit(Elite::Blackboard* pBlackboard) const override;
 

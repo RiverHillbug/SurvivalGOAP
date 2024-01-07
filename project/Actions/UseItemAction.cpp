@@ -6,6 +6,7 @@
 #include "EliteAI\EliteData\EBlackboard.h"
 #include "Helpers.h"
 #include <vector>
+#include <numeric>
 
 UseItemAction::UseItemAction()
 	: GOAPAction()
@@ -53,8 +54,26 @@ bool UseItemAction::Perform(Elite::Blackboard* pBlackboard) const
 	return true;
 }
 
+void UseItemAction::OnExit(Elite::Blackboard* pBlackboard) const
+{
+	GOAPAction::OnExit(pBlackboard);
+
+	if (SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
+	{
+		pAgent->SetDestination(pAgent->GetInterface()->Agent_GetInfo().Position);
+	}
+}
+
 bool UseItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
 {
-	// We are done after one update regardless
-	return true;
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return true;
+
+	// If the current item slot does not contain the proper item, we probably used it and we are done
+	std::vector<UINT> usedSlots{};
+	if (!pBlackboard->GetData(GetItemTypeSlotParam(), usedSlots) || usedSlots.empty() || std::ranges::find(usedSlots, pAgent->GetSelectedInventorySlot()) == usedSlots.end())
+		return true;
+
+	return !m_NeedsToFaceTarget || !HasTarget(pAgent, pBlackboard);
 }

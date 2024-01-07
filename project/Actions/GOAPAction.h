@@ -24,7 +24,10 @@ public:
 	inline bool RequiresInRange() const { return m_RequiresInRange; }
 	virtual bool TryGetDestination(const Elite::Blackboard* pBlackboard, OUT Elite::Vector2& destination) const { return false; }
 
+	virtual void OnStart(Elite::Blackboard* pBlackboard) const {}
 	virtual bool Perform(Elite::Blackboard* pBlackboard) const = 0;
+	virtual void OnExit(Elite::Blackboard* pBlackboard) const;
+
 	virtual bool IsDone(const Elite::Blackboard* pBlackboard) const = 0;
 
 protected:

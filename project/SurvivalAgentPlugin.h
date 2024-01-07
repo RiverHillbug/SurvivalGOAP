@@ -42,6 +42,10 @@ public:
 
 	inline void SetDestination(const Elite::Vector2& destination) { m_Destination = destination; }
 	inline const Elite::Vector2& GetDestination() const { return m_Destination; }
+
+	inline void SetAngularSpeed(const float speed) { m_AngSpeed = speed; }
+	inline void SetAutoOrient(const bool autoOrient) { m_AutoOrient = autoOrient; }
+
 	bool IsApproximatelyAt(const Elite::Vector2& position) const;
 
 private:
@@ -63,6 +67,7 @@ private:
 	bool m_RemoveItem{ false }; //Demo purpose
 	bool m_DestroyItemsInFOV{ false };
 	float m_AngSpeed{ 0.0f }; //Demo purpose
+	bool m_AutoOrient{ true };
 
 	UINT m_InventorySlot{ 0 };
 	std::vector<bool> m_UsedInventorySlots{};

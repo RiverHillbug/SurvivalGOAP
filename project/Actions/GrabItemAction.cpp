@@ -72,7 +72,7 @@ bool GrabItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
 {
 	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
 	if (pAgent == nullptr)
-		return false;
+		return true;
 
 	std::vector<UINT> usedSlots;
 	return pBlackboard->GetData(GetItemTypeSlotParam(), usedSlots) &&

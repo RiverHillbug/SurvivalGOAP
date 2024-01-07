@@ -26,9 +26,10 @@ static const std::string HAS_MEDKIT_PARAM{ "HasMedkit" };
 static const std::string HAS_FOOD_PARAM{ "HasFood" };
 static const std::string HAS_INVENTORY_SPACE_PARAM{ "HasInventorySpace" };
 static const std::string FILL_INVENTORY_SPACE_PARAM{ "FillInventorySpace" };
+static const std::string FOV_STATS_PARAM{ "FOVStats" }; //monitor for world changes
 
 static const std::string HAS_HIGH_HEALTH_PARAM{ "HasHighHealth" }; //use medkit
 static const std::string HAS_HIGH_ENERGY_PARAM{ "HasHighEnergy" }; //eat food
 
 static const std::string KILL_ENEMY_PARAM{ "KillEnemy" };
-static const std::string STAY_ALIVE_PARAM{ "StayAlive" };
+static const std::string EXPLORE_PARAM{ "Explore" };

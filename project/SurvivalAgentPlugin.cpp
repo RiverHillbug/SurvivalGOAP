@@ -231,9 +231,9 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 		steering.LinearVelocity = Elite::ZeroVector2;
 	}
 
-	//steering.AngularVelocity = m_AngSpeed; //Rotate your character to inspect the world while walking
+	steering.AngularVelocity = m_AngSpeed; //Rotate your character to inspect the world while walking
 
-	steering.AutoOrient = true; //Setting AutoOrient to true overrides the AngularVelocity
+	steering.AutoOrient = m_AutoOrient; //Setting AutoOrient to true overrides the AngularVelocity
 	steering.RunMode = m_CanRun; //If RunMode is True > MaxLinearSpeed is increased for a limited time (until your stamina runs out)
 
 	//SteeringPlugin_Output is works the exact same way a SteeringBehaviour output
@@ -337,6 +337,7 @@ void SurvivalAgentPlugin::InitializeGoals()
 	m_Goals.emplace(HAS_FOOD_PARAM, 10.0f);
 	m_Goals.emplace(HAS_MEDKIT_PARAM, 10.0f);
 	m_Goals.emplace(FILL_INVENTORY_SPACE_PARAM, 5.0f);
+	m_Goals.emplace(EXPLORE_PARAM, 1.0f);
 }
 
 void SurvivalAgentPlugin::InitializeAvailableActions()
@@ -350,6 +351,7 @@ void SurvivalAgentPlugin::InitializeAvailableActions()
 	m_AvailableActions.insert(new UseWeaponAction());
 	m_AvailableActions.insert(new UseFoodAction());
 	m_AvailableActions.insert(new UseMedkitAction());
+	m_AvailableActions.insert(new ExploreAction());
 }
 
 UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const

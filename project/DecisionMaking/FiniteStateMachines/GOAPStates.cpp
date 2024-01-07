@@ -5,6 +5,7 @@
 #include "Actions\GOAPAction.h"
 #include "EliteAI\EliteData\EBlackboard.h"
 #include "Helpers.h"
+#include <queue>
 
 void PlanningState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
 {
@@ -51,6 +52,16 @@ bool MoveToState::IsDone(const Elite::Blackboard* pBlackboard) const
 
 //----------------------------------------------------------
 
+void PerformActionState::OnEnter(Elite::Blackboard* pBlackboard) const
+{
+	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return;
+
+	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
+	plan.front()->OnStart(pBlackboard);
+}
+
 void PerformActionState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
 {
 	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
@@ -58,9 +69,13 @@ void PerformActionState::Update(Elite::Blackboard* pBlackboard, float deltaTime)
 		return;
 
 	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
-	const GOAPAction* pCurrentAction{ plan.front() };
+	if (!plan.front()->Perform(pBlackboard))
+	{
+		plan.front()->OnExit(pBlackboard);
 
-	pCurrentAction->Perform(pBlackboard);
+		// Action encountered an error; empty the plan to go back to planning!
+		pAgent->SetPlan(std::queue<const GOAPAction*>());
+	}
 }
 
 void PerformActionState::OnExit(Elite::Blackboard* pBlackboard) const
@@ -71,8 +86,11 @@ void PerformActionState::OnExit(Elite::Blackboard* pBlackboard) const
 
 	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
 
-	Helpers::ApplyState(plan.front()->GetEffects(), pBlackboard);
-	plan.pop();
+	if (!plan.empty())
+	{
+		plan.front()->OnExit(pBlackboard);
+		plan.pop();
+	}
 }
 
 bool PerformActionState::IsDone(const Elite::Blackboard* pBlackboard) const

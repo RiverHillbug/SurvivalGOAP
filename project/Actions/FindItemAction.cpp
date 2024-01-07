@@ -33,6 +33,12 @@ bool FindItemAction::Perform(Elite::Blackboard* pBlackboard) const
 			return IsCorrectItemType(item);
 		});
 
+	if (correctItemsInFOV.empty())
+	{
+		std::cout << "No correct item in sight!\n";
+		return false;
+	}
+
 	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
 
 	const ItemInfo closestItem{ *std::ranges::min_element(correctItemsInFOV,
@@ -52,7 +58,7 @@ bool FindItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
 {
 	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
 	if (pAgent == nullptr)
-		return false;
+		return true;
 
 	ItemInfo targetWeapon;
 	return pBlackboard->GetData(TARGET_ITEM_PARAM, targetWeapon);

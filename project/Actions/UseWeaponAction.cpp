@@ -38,3 +38,8 @@ void UseWeaponAction::FaceTarget(SurvivalAgentPlugin* pAgent, Elite::Blackboard*
 
 	pAgent->SetDestination(closestEnemy.Location);
 }
+
+bool UseWeaponAction::HasTarget(const SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const
+{
+	return pAgent->GetInterface()->FOV_GetStats().NumEnemies > 0;
+}
