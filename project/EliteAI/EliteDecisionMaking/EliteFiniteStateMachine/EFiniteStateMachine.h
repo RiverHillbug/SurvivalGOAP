@@ -7,6 +7,7 @@
 /*=============================================================================*/
 
 #pragma once
+#include <unordered_map>
 
 namespace Elite
 {
@@ -15,7 +16,7 @@ namespace Elite
 	public:
 		FSMCondition() = default;
 		virtual ~FSMCondition() = default;
-		virtual bool Evaluate(Blackboard* pBlackboard) const = 0;
+		virtual bool Evaluate(const class Blackboard* pBlackboard) const = 0;
 	};
 
 	class FSMState

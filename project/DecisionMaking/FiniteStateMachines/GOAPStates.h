@@ -40,5 +40,5 @@ class NeedsRange : public FSMCondition
 public:
 	NeedsRange() = default;
 	~NeedsRange() = default;
-	bool Evaluate(Blackboard* pBlackboard) const override;
+	bool Evaluate(const Blackboard* pBlackboard) const override;
 };

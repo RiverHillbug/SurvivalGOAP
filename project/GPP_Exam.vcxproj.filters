@@ -6,18 +6,21 @@
     <ClCompile Include="DecisionMaking\FiniteStateMachines\GOAPStates.cpp" />
     <ClCompile Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.cpp" />
     <ClCompile Include="GOAPPlanner.cpp" />
-    <ClCompile Include="GOAPAction.cpp" />
+    <ClCompile Include="Actions\GOAPAction.cpp" />
     <ClCompile Include="EBlackboard.cpp" />
-    <ClCompile Include="GrabItemAction.cpp" />
-    <ClCompile Include="GrabWeaponAction.cpp" />
-    <ClCompile Include="GrabMedkitAction.cpp" />
-    <ClCompile Include="GrabFoodAction.cpp" />
-    <ClCompile Include="UseItemAction.cpp" />
-    <ClCompile Include="UseWeaponAction.cpp" />
-    <ClCompile Include="FindWeaponAction.cpp" />
+    <ClCompile Include="Actions\GrabItemAction.cpp" />
+    <ClCompile Include="Actions\GrabWeaponAction.cpp" />
+    <ClCompile Include="Actions\GrabMedkitAction.cpp" />
+    <ClCompile Include="Actions\GrabFoodAction.cpp" />
+    <ClCompile Include="Actions\UseItemAction.cpp" />
+    <ClCompile Include="Actions\UseWeaponAction.cpp" />
+    <ClCompile Include="Actions\FindWeaponAction.cpp" />
     <ClCompile Include="DataProvider.cpp" />
-    <ClCompile Include="UseFoodAction.cpp" />
-    <ClCompile Include="UseMedkitAction.cpp" />
+    <ClCompile Include="Actions\UseFoodAction.cpp" />
+    <ClCompile Include="Actions\UseMedkitAction.cpp" />
+    <ClCompile Include="Actions\FindItemAction.cpp" />
+    <ClCompile Include="Actions\FindFoodAction.cpp" />
+    <ClCompile Include="Actions\FindMedkitAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SurvivalAgentPlugin.h" />
@@ -26,17 +29,21 @@
     <ClInclude Include="EliteAI\EliteData\EBlackboard.h" />
     <ClInclude Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h" />
     <ClInclude Include="GOAPPlanner.h" />
-    <ClInclude Include="GOAPAction.h" />
+    <ClInclude Include="Actions\GOAPAction.h" />
     <ClInclude Include="BlackboardTypes.h" />
-    <ClInclude Include="GrabItemAction.h" />
-    <ClInclude Include="GrabWeaponAction.h" />
-    <ClInclude Include="GrabMedkitAction.h" />
-    <ClInclude Include="GrabFoodAction.h" />
-    <ClInclude Include="UseItemAction.h" />
-    <ClInclude Include="UseWeaponAction.h" />
-    <ClInclude Include="FindWeaponAction.h" />
+    <ClInclude Include="Actions\GrabItemAction.h" />
+    <ClInclude Include="Actions\GrabWeaponAction.h" />
+    <ClInclude Include="Actions\GrabMedkitAction.h" />
+    <ClInclude Include="Actions\GrabFoodAction.h" />
+    <ClInclude Include="Actions\UseItemAction.h" />
+    <ClInclude Include="Actions\UseWeaponAction.h" />
+    <ClInclude Include="Actions\FindWeaponAction.h" />
     <ClInclude Include="DataProvider.h" />
-    <ClInclude Include="UseFoodAction.h" />
-    <ClInclude Include="UseMedkitAction.h" />
+    <ClInclude Include="Actions\UseFoodAction.h" />
+    <ClInclude Include="Actions\UseMedkitAction.h" />
+    <ClInclude Include="Actions\GOAPActions.h" />
+    <ClInclude Include="Actions\FindItemAction.h" />
+    <ClInclude Include="Actions\FindFoodAction.h" />
+    <ClInclude Include="Actions\FindMedkitAction.h" />
   </ItemGroup>
 </Project>

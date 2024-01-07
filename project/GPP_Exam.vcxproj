@@ -102,6 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,6 +129,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;GPPExam2018_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,6 +147,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\inc\;$(SolutionDir)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,6 +176,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;GPPExam2018_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -182,46 +186,53 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Actions\GOAPActions.h" />
     <ClInclude Include="BlackboardTypes.h" />
     <ClInclude Include="DecisionMaking\FiniteStateMachines\GOAPStates.h" />
     <ClInclude Include="EliteAI\EliteData\EBlackboard.h" />
     <ClInclude Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h" />
-    <ClInclude Include="FindWeaponAction.h" />
+    <ClInclude Include="Actions\FindWeaponAction.h" />
     <ClInclude Include="DataProvider.h" />
-    <ClInclude Include="GOAPAction.h" />
+    <ClInclude Include="Actions\GOAPAction.h" />
+    <ClInclude Include="Actions\FindItemAction.h" />
+    <ClInclude Include="Actions\FindFoodAction.h" />
+    <ClInclude Include="Actions\FindMedkitAction.h" />
     <ClInclude Include="GOAPPlanner.h" />
-    <ClInclude Include="GrabFoodAction.h" />
-    <ClInclude Include="GrabItemAction.h" />
-    <ClInclude Include="GrabMedkitAction.h" />
-    <ClInclude Include="GrabWeaponAction.h" />
+    <ClInclude Include="Actions\GrabFoodAction.h" />
+    <ClInclude Include="Actions\GrabItemAction.h" />
+    <ClInclude Include="Actions\GrabMedkitAction.h" />
+    <ClInclude Include="Actions\GrabWeaponAction.h" />
     <ClInclude Include="SurvivalAgentPlugin.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="UseFoodAction.h" />
-    <ClInclude Include="UseItemAction.h" />
-    <ClInclude Include="UseMedkitAction.h" />
-    <ClInclude Include="UseWeaponAction.h" />
+    <ClInclude Include="Actions\UseFoodAction.h" />
+    <ClInclude Include="Actions\UseItemAction.h" />
+    <ClInclude Include="Actions\UseMedkitAction.h" />
+    <ClInclude Include="Actions\UseWeaponAction.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DecisionMaking\FiniteStateMachines\GOAPStates.cpp" />
     <ClCompile Include="EBlackboard.cpp" />
     <ClCompile Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.cpp" />
-    <ClCompile Include="FindWeaponAction.cpp" />
+    <ClCompile Include="Actions\FindWeaponAction.cpp" />
     <ClCompile Include="DataProvider.cpp" />
-    <ClCompile Include="GOAPAction.cpp" />
+    <ClCompile Include="Actions\GOAPAction.cpp" />
+    <ClCompile Include="Actions\FindItemAction.cpp" />
+    <ClCompile Include="Actions\FindFoodAction.cpp" />
+    <ClCompile Include="Actions\FindMedkitAction.cpp" />
     <ClCompile Include="GOAPPlanner.cpp" />
-    <ClCompile Include="GrabFoodAction.cpp" />
-    <ClCompile Include="GrabItemAction.cpp" />
-    <ClCompile Include="GrabMedkitAction.cpp" />
-    <ClCompile Include="GrabWeaponAction.cpp" />
+    <ClCompile Include="Actions\GrabFoodAction.cpp" />
+    <ClCompile Include="Actions\GrabItemAction.cpp" />
+    <ClCompile Include="Actions\GrabMedkitAction.cpp" />
+    <ClCompile Include="Actions\GrabWeaponAction.cpp" />
     <ClCompile Include="SurvivalAgentPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UseFoodAction.cpp" />
-    <ClCompile Include="UseItemAction.cpp" />
-    <ClCompile Include="UseMedkitAction.cpp" />
-    <ClCompile Include="UseWeaponAction.cpp" />
+    <ClCompile Include="Actions\UseFoodAction.cpp" />
+    <ClCompile Include="Actions\UseItemAction.cpp" />
+    <ClCompile Include="Actions\UseMedkitAction.cpp" />
+    <ClCompile Include="Actions\UseWeaponAction.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

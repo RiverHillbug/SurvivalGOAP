@@ -4,11 +4,7 @@
 #include "BlackboardTypes.h"
 #include "EliteAI\EliteData\EBlackboard.h"
 #include "EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h"
-#include "GrabFoodAction.h"
-#include "GrabMedkitAction.h"
-#include "GrabWeaponAction.h"
-#include "FindWeaponAction.h"
-#include "UseWeaponAction.h"
+#include "Actions\GOAPActions.h"
 #include "GOAPPlanner.h"
 
 using namespace std;
@@ -17,8 +13,13 @@ SurvivalAgentPlugin::SurvivalAgentPlugin()
 	: m_pGOAPPlanner{ new GOAPPlanner() }
 	, m_pBlackboard{ new Elite::Blackboard() }
 {
-	m_Goals.insert({ KILL_ENEMY_PARAM, true });
-	m_Goals.insert({ STAY_ALIVE_PARAM, true });
+	//m_Goals.insert({ STAY_ALIVE_PARAM, 100.0f });
+	m_Goals.insert({ KILL_ENEMY_PARAM, 90.0f });
+	m_Goals.insert({ HAS_HIGH_ENERGY_PARAM, 60.0f });
+	m_Goals.insert({ HAS_HIGH_HEALTH_PARAM, 60.0f });
+	m_Goals.insert({ HAS_WEAPON_PARAM, 25.0f });
+	m_Goals.insert({ HAS_FOOD_PARAM, 10.0f });
+	m_Goals.insert({ HAS_MEDKIT_PARAM, 10.0f });
 }
 
 //Called only once, during initialization
@@ -34,19 +35,22 @@ void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& inf
 	info.Student_Class = "2DAE09";
 	info.LB_Password = "Doridadu";//Don't use a real password! This is only to prevent other students from overwriting your highscore!
 
+	for (UINT i{ 0 }; i < m_pInterface->Inventory_GetCapacity(); ++i)
+	{
+		m_UsedInventorySlots.push_back(false);
+	}
+
 	m_pBlackboard->SetData(AGENT_PARAM, this);
 
-	const FindWeaponAction* pFindWeaponAction = new FindWeaponAction();
-	const GrabWeaponAction* pGrabWeaponAction = new GrabWeaponAction();
-	const GrabFoodAction* pGrabFoodAction = new GrabFoodAction();
-	const GrabMedkitAction* pGrabMedkitAction = new GrabMedkitAction();
-	const UseWeaponAction* pUseWeaponAction = new UseWeaponAction();
-
-	m_AvailableActions.insert(pFindWeaponAction);
-	m_AvailableActions.insert(pGrabWeaponAction);
-	m_AvailableActions.insert(pGrabMedkitAction);
-	m_AvailableActions.insert(pGrabFoodAction);
-	m_AvailableActions.insert(pUseWeaponAction);
+	m_AvailableActions.insert(new FindWeaponAction());
+	m_AvailableActions.insert(new FindFoodAction());
+	m_AvailableActions.insert(new FindMedkitAction());
+	m_AvailableActions.insert(new GrabWeaponAction());
+	m_AvailableActions.insert(new GrabFoodAction());
+	m_AvailableActions.insert(new GrabMedkitAction());
+	m_AvailableActions.insert(new UseWeaponAction());
+	m_AvailableActions.insert(new UseFoodAction());
+	m_AvailableActions.insert(new UseMedkitAction());
 }
 
 //Called only once
@@ -86,6 +90,8 @@ void SurvivalAgentPlugin::InitGameDebugParams(GameDebugParams& params)
 void SurvivalAgentPlugin::Update_Debug(float dt)
 {
 	//Demo Event Code
+
+	m_pGOAPPlanner->Plan(m_pBlackboard);
 
 	//In the end your Agent should be able to walk around without external input
 	if (m_pInterface->Input_IsMouseButtonUp(Elite::InputMouseButton::eLeft))
@@ -205,7 +211,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 		{
 			//Once grabbed, you can add it to a specific inventory slot
 			//Slot must be empty
-			m_pInterface->Inventory_AddItem(m_InventorySlot, item);
+			Inventory_AddItem(m_InventorySlot, item);
 		}
 	}
 
@@ -218,7 +224,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 	if (m_RemoveItem)
 	{
 		//Remove an item from a inventory slot
-		m_pInterface->Inventory_RemoveItem(m_InventorySlot);
+		Inventory_RemoveItem(m_InventorySlot);
 	}
 
 	if (m_DestroyItemsInFOV)
@@ -265,24 +271,54 @@ void SurvivalAgentPlugin::Render(float dt) const
 
 UINT SurvivalAgentPlugin::SelectFirstAvailableInventorySlot()
 {
-	for (int i{ 0 }; i < int(m_pInterface->Inventory_GetCapacity()); ++i)
+	const UINT slot{ GetFirstAvailableInventorySpace() };
+
+	if (slot != INVALID_INVENTORY_SLOT)
 	{
-		ItemInfo info;
-		if (!m_pInterface->Inventory_GetItem(i, info))
-		{
-			m_InventorySlot = i;
-			return m_InventorySlot;
-		}
+		m_InventorySlot = slot;
+	}
+	else
+	{
+		std::cout << "Inventory full.\n";
 	}
 
-	std::cout << "Inventory full.\n";
-	return INVALID_INVENTORY_SLOT;
+	return slot;
+}
+
+bool SurvivalAgentPlugin::Inventory_AddItem(UINT slotId, ItemInfo item)
+{
+	m_UsedInventorySlots[slotId] = true;
+	return m_pInterface->Inventory_AddItem(slotId, item);
+}
+
+bool SurvivalAgentPlugin::Inventory_RemoveItem(UINT slotId)
+{
+	m_UsedInventorySlots[slotId] = false;
+	return m_pInterface->Inventory_RemoveItem(slotId);
+}
+
+bool SurvivalAgentPlugin::HasInventorySpace() const
+{
+	return GetFirstAvailableInventorySpace() != INVALID_INVENTORY_SLOT;
 }
 
 bool SurvivalAgentPlugin::TryPlan(OUT std::queue<const GOAPAction*>& plan)
 {
 	plan = m_pGOAPPlanner->Plan(m_pBlackboard);
 	return !plan.empty();
+}
+
+UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const
+{
+	for (UINT i{ 0 }; i < UINT(m_UsedInventorySlots.size()); ++i)
+	{
+		if (!m_UsedInventorySlots[i])
+		{
+			return i;
+		}
+	}
+
+	return INVALID_INVENTORY_SLOT;
 }
 
 IPluginBase* Register()

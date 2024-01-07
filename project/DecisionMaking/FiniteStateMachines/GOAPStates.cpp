@@ -2,7 +2,7 @@
 #include "GOAPStates.h"
 #include "SurvivalAgentPlugin.h"
 #include "BlackboardTypes.h"
-#include "GOAPAction.h"
+#include "Actions\GOAPAction.h"
 
 void PlanningState::Update(Blackboard* pBlackboard, float deltaTime)
 {
@@ -45,11 +45,11 @@ void PerformActionState::Update(Blackboard* pBlackboard, float deltaTime)
 	}
 }
 
-bool NeedsRange::Evaluate(Blackboard* pBlackboard) const
+bool NeedsRange::Evaluate(const Blackboard* pBlackboard) const
 {
 	SurvivalAgentPlugin* pAgent;
 	if (!pBlackboard->GetData(AGENT_PARAM, pAgent))
-		return;
+		return false;
 
 	const std::queue<const GOAPAction*> plan{ pAgent->GetPlan() };
 

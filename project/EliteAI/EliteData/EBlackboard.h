@@ -77,7 +77,7 @@ namespace Elite
 		template<typename T>
 		bool SetData(const std::string& name, const T& data)
 		{
-			auto& it = m_BlackboardData.find(name);
+			auto it = m_BlackboardData.find(name);
 			if (it == m_BlackboardData.end())
 			{
 				m_BlackboardData[name] = new BlackboardField<T>(name, data);
