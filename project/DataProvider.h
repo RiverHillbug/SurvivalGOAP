@@ -14,5 +14,12 @@ class DataProvider
 {
 public:
 	static WorldState GetWorldState(Elite::Blackboard* pBlackboard);
+
+private:
+	static void CheckHouses(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
+	static void CheckItems(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
+	static void CheckStats(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
+	static void CheckInventory(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
+
 	static void EnterData(const std::string& name, const bool value, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
 };

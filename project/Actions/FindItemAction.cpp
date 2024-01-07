@@ -40,15 +40,7 @@ bool FindItemAction::Perform(Elite::Blackboard* pBlackboard) const
 	}
 
 	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
-
-	const ItemInfo closestItem{ *std::ranges::min_element(correctItemsInFOV,
-		[agentLocation](const ItemInfo& left, const ItemInfo& right)
-		{
-			const float distanceLeft{ (left.Location - agentLocation).MagnitudeSquared() };
-			const float distanceRight{ (right.Location - agentLocation).MagnitudeSquared() };
-
-			return distanceLeft < distanceRight;
-		}) };
+	const ItemInfo closestItem{ Helpers::GetClosestFromPosition<ItemInfo>(correctItemsInFOV, agentLocation, [](const ItemInfo& item) { return item.Location; }) };
 
 	pBlackboard->SetData(TARGET_ITEM_PARAM, closestItem);
 	return true;

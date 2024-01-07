@@ -24,7 +24,7 @@ void ExploreAction::OnStart(Elite::Blackboard* pBlackboard) const
 
 	pBlackboard->SetData<FOVStats>(FOV_STATS_PARAM, pAgent->GetInterface()->FOV_GetStats());
 
-	SendToRandomDestination(pAgent);
+	pAgent->SetDestination(GetExploreDestination(pAgent, pBlackboard));
 	pAgent->SetAngularSpeed(float(E_PI));
 	pAgent->SetAutoOrient(false);
 }
@@ -37,7 +37,7 @@ bool ExploreAction::Perform(Elite::Blackboard* pBlackboard) const
 
 	if (pAgent->IsApproximatelyAt(pAgent->GetDestination()))
 	{
-		SendToRandomDestination(pAgent);
+		pAgent->SetDestination(GetExploreDestination(pAgent, pBlackboard));
 	}
 
 	return true;
@@ -69,14 +69,32 @@ bool ExploreAction::IsDone(const Elite::Blackboard* pBlackboard) const
 		return true;
 	}
 
-	// We stop wandering as soon as we see something new, so we can go back to planning
-	return fovStats != pAgent->GetInterface()->FOV_GetStats();
+	const FOVStats& currentFOVStats{ pAgent->GetInterface()->FOV_GetStats() };
+	if (fovStats != currentFOVStats)
+	{
+		// We stop wandering as soon as we see something new, but not if it's about houses we already searched
+		fovStats.NumHouses = currentFOVStats.NumHouses;
+
+		// There's more differences than just houses
+		if (fovStats != currentFOVStats)
+		{
+			return true;
+		}
+		else
+		{
+			HouseInfo currentTargetHouse;
+			// If we are currently searching a house, ignore other houses
+			return !pBlackboard->GetData(TARGET_HOUSE_PARAM, currentTargetHouse) &&
+				pBlackboard->GetBoolData(HAS_HOUSE_IN_SIGHT_PARAM);	// Otherwise, make sure we're not seeing a house we already searched
+		}
+	}
+
+	return false;
 }
 
-void ExploreAction::SendToRandomDestination(class SurvivalAgentPlugin* pAgent) const
+Elite::Vector2 ExploreAction::GetExploreDestination(const SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const
 {
 	const float randomDistanceMax{ 60.0f };
 
-	Elite::Vector2 randomDestination{ Elite::randomVector2(-randomDistanceMax, randomDistanceMax) + pAgent->GetInterface()->Agent_GetInfo().Position };
-	pAgent->SetDestination(randomDestination);
+	return Elite::randomVector2(-randomDistanceMax, randomDistanceMax) + pAgent->GetInterface()->Agent_GetInfo().Position;
 }

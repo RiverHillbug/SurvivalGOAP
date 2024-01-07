@@ -5,9 +5,11 @@
 static const std::string AGENT_PARAM{ "Agent" };
 
 static const std::string TARGET_ITEM_PARAM{ "ItemToGrab" };
+static const std::string TARGET_HOUSE_PARAM{ "TargetHouse" };
 static const std::string WEAPON_SLOTS_PARAM{ "WeaponSlots" };
 static const std::string MEDKIT_SLOTS_PARAM{ "MedkitSlots" };
 static const std::string FOOD_SLOTS_PARAM{ "FoodSlots" };
+static const std::string SEARCHED_HOUSES_PARAM{ "SearchedHouses" };
 
 static const std::string HAS_WEAPON_IN_SIGHT_PARAM{ "HasWeaponInSight" };
 static const std::string HAS_MEDKIT_IN_SIGHT_PARAM{ "HasMedkitInSight" };

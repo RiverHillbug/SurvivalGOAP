@@ -18,6 +18,6 @@ public:
 
 	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 
-private:
-	void SendToRandomDestination(class SurvivalAgentPlugin* pAgent) const;
+protected:
+	virtual Elite::Vector2 GetExploreDestination(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const;
 };

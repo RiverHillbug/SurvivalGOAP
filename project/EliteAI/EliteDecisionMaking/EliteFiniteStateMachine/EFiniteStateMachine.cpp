@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "EFiniteStateMachine.h"
 #include "EliteAI\EliteData\EBlackboard.h"
+#include "DataProvider.h"
 #include <iostream>
 
 using namespace Elite;
@@ -29,6 +30,8 @@ void FiniteStateMachine::Update(float deltaTime)
 	// Update the current state (if one exists)
 	if (m_pCurrentState == nullptr)
 		return;
+
+	DataProvider::GetWorldState(m_pBlackboard);
 
 	m_pCurrentState->Update(m_pBlackboard, deltaTime);
 

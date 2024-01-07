@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <iostream>
 
-
 bool Helpers::IsNearlyEqual(const float value, const float tolerance /*= 0.01f*/)
 {
 	return std::abs(value - 100.0f) <= tolerance;
@@ -36,6 +35,15 @@ void Helpers::ApplyState(const WorldState& stateToApply, OUT WorldState& current
 			currentState.insert({ state.first, state.second });
 		}
 	}
+}
+
+void Helpers::ExcludeSearchedHouses(OUT std::vector<HouseInfo>& houses, const std::unordered_set<HouseInfo>& searchedHouses)
+{
+	houses.erase(std::remove_if(houses.begin(), houses.end(),
+		[&searchedHouses](const HouseInfo& house)
+		{
+			return searchedHouses.count(house) != 0;
+		}), houses.end());
 }
 
 void Helpers::ApplyState(const WorldState& stateToApply, OUT Elite::Blackboard* pBlackboard)

@@ -5,6 +5,7 @@
 #include "EliteAI/EliteData/EBlackboard.h"
 #include "Exam_HelperStructs.h"
 #include "IExamInterface.h"
+#include "Helpers.h"
 #include <vector>
 #include <numeric>
 
@@ -26,15 +27,7 @@ void UseWeaponAction::FaceTarget(SurvivalAgentPlugin* pAgent, Elite::Blackboard*
 		return;
 
 	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
-
-	const EnemyInfo closestEnemy{ *std::ranges::min_element(enemies,
-		[agentLocation](const EnemyInfo& left, const EnemyInfo& right)
-		{
-			const float distanceLeft{ (left.Location - agentLocation).MagnitudeSquared() };
-			const float distanceRight{ (right.Location - agentLocation).MagnitudeSquared() };
-
-			return distanceLeft < distanceRight;
-		}) };
+	const EnemyInfo closestEnemy{ Helpers::GetClosestFromPosition<EnemyInfo>(enemies, agentLocation, [](const EnemyInfo& enemy) { return enemy.Location; }) };
 
 	pAgent->SetDestination(closestEnemy.Location);
 }

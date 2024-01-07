@@ -97,6 +97,7 @@ namespace Elite
 
 		bool GetBoolData(const std::string& name) const;
 
+		void RemoveData(const std::string& name);
 
 	private:
 		std::unordered_map<std::string, IBlackBoardField*> m_BlackboardData;

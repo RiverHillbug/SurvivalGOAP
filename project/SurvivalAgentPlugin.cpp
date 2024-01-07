@@ -352,6 +352,7 @@ void SurvivalAgentPlugin::InitializeAvailableActions()
 	m_AvailableActions.insert(new UseFoodAction());
 	m_AvailableActions.insert(new UseMedkitAction());
 	m_AvailableActions.insert(new ExploreAction());
+	m_AvailableActions.insert(new SearchHouseAction());
 }
 
 UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const
