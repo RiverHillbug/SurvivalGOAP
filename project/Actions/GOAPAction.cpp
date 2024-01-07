@@ -1,28 +1,29 @@
 #include "stdafx.h"
 #include "GOAPAction.h"
 #include "EliteAI\EliteData\EBlackboard.h"
-
-void GOAPAction::Reset()
-{
-	m_IsDone = false;
-}
+#include <iostream>
 
 void GOAPAction::AddPrecondition(const std::string& name, const bool value)
 {
-	if (m_Preconditions.find(name) != m_Preconditions.end())
-	{
-		printf("WARNING: Data '%s' already in preconditions.\n", name.c_str());
-	}
-
-	m_Preconditions[name] = value;
+	AddToWorldState(name, value, m_Preconditions);
 }
 
 void GOAPAction::AddEffect(const std::string& name, const bool value)
 {
-	if (m_Effects.find(name) != m_Effects.end())
+	AddToWorldState(name, value, m_Effects);
+}
+
+void GOAPAction::AddPlanOnlyEffect(const std::string& name, const bool value)
+{
+	AddToWorldState(name, value,  m_PlanOnlyEffects);
+}
+
+void GOAPAction::AddToWorldState(const std::string& name, const bool value, OUT WorldState& worldState)
+{
+	if (worldState.find(name) != worldState.end())
 	{
-		printf("WARNING: Data '%s' already in effects.\n", name.c_str());
+		std::cout << "WARNING: Data '" << name << "' already in map.\n";
 	}
 
-	m_Effects[name] = value;
+	worldState[name] = value;
 }

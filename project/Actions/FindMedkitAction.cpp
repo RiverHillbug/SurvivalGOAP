@@ -9,7 +9,7 @@ FindMedkitAction::FindMedkitAction()
 	AddPrecondition(HAS_MEDKIT_IN_SIGHT_PARAM, true);
 	AddPrecondition(HAS_TARGET_MEDKIT_PARAM, false);
 
-	AddEffect(HAS_TARGET_MEDKIT_PARAM, true);
+	AddPlanOnlyEffect(HAS_TARGET_MEDKIT_PARAM, true);
 }
 
 bool FindMedkitAction::IsCorrectItemType(const ItemInfo& item) const

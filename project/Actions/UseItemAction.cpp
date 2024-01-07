@@ -4,6 +4,8 @@
 #include "SurvivalAgentPlugin.h"
 #include "IExamInterface.h"
 #include "EliteAI\EliteData\EBlackboard.h"
+#include "Helpers.h"
+#include <vector>
 
 UseItemAction::UseItemAction()
 	: GOAPAction()
@@ -13,32 +15,46 @@ UseItemAction::UseItemAction()
 
 bool UseItemAction::Perform(Elite::Blackboard* pBlackboard) const
 {
-	SurvivalAgentPlugin* pAgent{ nullptr };
-	if (pBlackboard->GetData(AGENT_PARAM, pAgent))
+	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return false;
+
+	const std::string& itemTypeSlotParam{ GetItemTypeSlotParam() };
+
+	std::vector<UINT> usedSlots{};
+	if (!pBlackboard->GetData(itemTypeSlotParam, usedSlots) || usedSlots.empty())
 	{
-		ItemInfo itemToUse;
-		pBlackboard->GetData(TARGET_ITEM_PARAM, itemToUse);
-		UINT slot{ INVALID_INVENTORY_SLOT };
-
-		switch (itemToUse.Type)
-		{
-		case eItemType::PISTOL:
-		case eItemType::SHOTGUN:
-			pBlackboard->GetData(WEAPON_SLOT_PARAM, slot);
-			break;
-
-		case eItemType::MEDKIT:
-			pBlackboard->GetData(MEDKIT_SLOT_PARAM, slot);
-			break;
-
-		case eItemType::FOOD:
-			pBlackboard->GetData(FOOD_SLOT_PARAM, slot);
-		}
-
-		if (slot != INVALID_INVENTORY_SLOT)
-			pAgent->GetInterface()->Inventory_UseItem(slot);
-	
+		std::cout << "No valid inventory slot given to use item!\n";
+		return false;
 	}
 
-	return false;
+	if (m_NeedsToFaceTarget)
+	{
+		FaceTarget(pAgent, pBlackboard);
+	}
+
+	const UINT itemSlot{ usedSlots.back() };
+
+	if (!pAgent->GetInterface()->Inventory_UseItem(itemSlot))
+		return false;
+
+	ItemInfo itemInfo;
+	if (!pAgent->GetInterface()->Inventory_GetItem(itemSlot, itemInfo))
+		return false;
+
+	if (itemInfo.Value == 0)
+	{
+		pAgent->GetInterface()->Inventory_RemoveItem(itemSlot);
+		usedSlots.pop_back();
+
+		pBlackboard->SetData(itemTypeSlotParam, usedSlots);
+	}
+
+	return true;
+}
+
+bool UseItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
+{
+	// We are done after one update regardless
+	return true;
 }

@@ -22,37 +22,41 @@ namespace Elite
 	class FSMState
 	{
 	public:
-		FSMState(){}
+		FSMState() {}
 		virtual ~FSMState() = default;
-		void AddTransition(FSMState* toState, const FSMCondition* condition);
-		inline std::unordered_map<FSMState*, const FSMCondition*> GetTransitions() const { return m_Transitions; }
+		void AddTransition(const FSMState* toState, const FSMCondition* condition = nullptr);
+		inline std::unordered_map<const FSMState*, const FSMCondition*> GetTransitions() const { return m_Transitions; }
 
-		virtual void OnEnter(class Blackboard* pBlackboard);
-		virtual void Update(class Blackboard* pBlackboard, float deltaTime) {}
-		virtual void OnExit(class Blackboard* pBlackboard) {}
+		virtual void OnEnter(class Blackboard* pBlackboard) const {};
+		virtual void Update(class Blackboard* pBlackboard, float deltaTime) const {}
+		virtual void OnExit(class Blackboard* pBlackboard) const {}
 
 		virtual bool CanEnter() const { return true; }
-		inline bool IsDone() const { return m_IsDone; }
-
-	protected:
-		bool m_IsDone{ false };
+		virtual bool IsDone(const class Blackboard* pBlackboard) const = 0;
 
 	private:
-		std::unordered_map<FSMState*, const FSMCondition*> m_Transitions;
+		std::unordered_map<const FSMState*, const FSMCondition*> m_Transitions;
 	};
 
 	class FiniteStateMachine final
 	{
 	public:
-		FiniteStateMachine(FSMState* startState, class Blackboard* pBlackboard);
+		FiniteStateMachine() = default;
 		~FiniteStateMachine();
-		
+
+		inline void SetBlackboard(class Blackboard* pBlackboard) { m_pBlackboard = pBlackboard; }
+		inline void AddState(const FSMState* state) { m_AllStates.push_back(state); }
+		inline void AddCondition(const FSMCondition* condition) { m_AllConditions.push_back(condition); }
+
 		void Update(float deltaTime);
 		inline class Blackboard* GetBlackboard() const { return m_pBlackboard; }
-		void EnterState(FSMState* newState);
+		void EnterState(const FSMState* newState);
+		void ExitCurrentState();
 
 	private:
-		FSMState* m_pCurrentState;
-		class Blackboard* m_pBlackboard = nullptr; // takes ownership of the blackboard
+		class Blackboard* m_pBlackboard{ nullptr };
+		std::vector<const FSMState*> m_AllStates{};
+		std::vector<const FSMCondition*> m_AllConditions{};
+		const FSMState* m_pCurrentState{ nullptr };
 	};
 }

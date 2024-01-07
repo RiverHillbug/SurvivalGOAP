@@ -2,66 +2,70 @@
 #include "stdafx.h"
 #include "EFiniteStateMachine.h"
 #include "EliteAI\EliteData\EBlackboard.h"
+#include <iostream>
 
 using namespace Elite;
 
-void FSMState::OnEnter(Blackboard* pBlackboard)
-{
-	m_IsDone = false;
-}
-
-void FSMState::AddTransition(FSMState* toState, const FSMCondition* condition)
+void FSMState::AddTransition(const FSMState* toState, const FSMCondition* condition /*= nullptr*/)
 {
 	m_Transitions[toState] = condition;
 }
 
-FiniteStateMachine::FiniteStateMachine(FSMState* startState, Blackboard* pBlackboard)
-	: m_pCurrentState(nullptr)
-	, m_pBlackboard(pBlackboard)
-{
-	EnterState(startState);
-}
-
 FiniteStateMachine::~FiniteStateMachine()
 {
-	SAFE_DELETE(m_pBlackboard);
+	for (auto& state : m_AllStates)
+	{
+		SAFE_DELETE(state);
+	}
+
+	for (auto& condition : m_AllConditions)
+	{
+		SAFE_DELETE(condition);
+	}
 }
 
 void FiniteStateMachine::Update(float deltaTime)
 {
-	//Update the current state (if one exists)
-	if (m_pCurrentState != nullptr)
+	// Update the current state (if one exists)
+	if (m_pCurrentState == nullptr)
 		return;
 
 	m_pCurrentState->Update(m_pBlackboard, deltaTime);
 
-	if (m_pCurrentState->IsDone())
+	if (m_pCurrentState->IsDone(m_pBlackboard))
 	{
-		auto transitions{ m_pCurrentState->GetTransitions() };
+		const auto& transitions{ m_pCurrentState->GetTransitions() };
+		ExitCurrentState();
+
 		for (const auto& transition : transitions)
 		{
-			if (transition.second->Evaluate(m_pBlackboard))
+			if (transition.second == nullptr || transition.second->Evaluate(m_pBlackboard))
 			{
 				EnterState(transition.first);
-				break;
+				return;
 			}
 		}
 
-		// Error: No valid state to transition to
+		std::cout << "No valid state to transition to!\n";
 	}
 }
 
-void FiniteStateMachine::EnterState(FSMState* newState)
+void FiniteStateMachine::EnterState(const FSMState* newState)
 {
-	if(m_pCurrentState != nullptr)
-	{
-		m_pCurrentState->OnExit(m_pBlackboard);
-	}
-
 	m_pCurrentState = newState;
 
 	if (m_pCurrentState != nullptr)
 	{
 		m_pCurrentState->OnEnter(m_pBlackboard);
 	}
+}
+
+void FiniteStateMachine::ExitCurrentState()
+{
+	if (m_pCurrentState != nullptr)
+	{
+		m_pCurrentState->OnExit(m_pBlackboard);
+	}
+
+	m_pCurrentState = nullptr;
 }

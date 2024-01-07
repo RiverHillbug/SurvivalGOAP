@@ -21,6 +21,9 @@
     <ClCompile Include="Actions\FindItemAction.cpp" />
     <ClCompile Include="Actions\FindFoodAction.cpp" />
     <ClCompile Include="Actions\FindMedkitAction.cpp" />
+    <ClCompile Include="Actions\ExploreAction.cpp" />
+    <ClCompile Include="Helpers.cpp" />
+
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SurvivalAgentPlugin.h" />
@@ -45,5 +48,7 @@
     <ClInclude Include="Actions\FindItemAction.h" />
     <ClInclude Include="Actions\FindFoodAction.h" />
     <ClInclude Include="Actions\FindMedkitAction.h" />
+    <ClInclude Include="Actions\ExploreAction.h" />
+    <ClInclude Include="Helpers.h" />
   </ItemGroup>
 </Project>

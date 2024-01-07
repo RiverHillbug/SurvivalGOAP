@@ -5,11 +5,15 @@
 #include "BlackboardTypes.h"
 #include "SurvivalAgentPlugin.h"
 #include "DataProvider.h"
+#include "Helpers.h"
 #include <EliteMath\EMathUtilities.h>
 #include <numeric>
 
-Node::Node(const Node* pParent, const class GOAPAction* pAction, const WorldState& cumulativeStates, const int cost, const float goalsFulfilledPercentage)
-	: m_pParent{ pParent }
+const int Node::InvalidIndex{ -1 };
+
+Node::Node(const int nodeIndex, const int parentNodeIndex, const class GOAPAction* pAction, const WorldState& cumulativeStates, const int cost, const float goalsFulfilledPercentage)
+	: m_NodeIndex{ nodeIndex }
+	, m_ParentNodeIndex{ parentNodeIndex }
 	, m_pAction{ pAction }
 	, m_CumulativeStates{ cumulativeStates }
 	, m_Cost{ cost }
@@ -18,9 +22,9 @@ Node::Node(const Node* pParent, const class GOAPAction* pAction, const WorldStat
 
 }
 
-void Node::SetData(const Node* pParent, const GOAPAction* pAction, const WorldState& cumulativeStates, const int cost, const float goalsFulfilledPercentage)
+void Node::SetData(const int parentNodeIndex, const GOAPAction* pAction, const WorldState& cumulativeStates, const int cost, const float goalsFulfilledPercentage)
 {
-	m_pParent = pParent;
+	m_ParentNodeIndex = parentNodeIndex;
 	m_pAction = pAction;
 	m_CumulativeStates = cumulativeStates;
 	m_Cost = cost;
@@ -43,33 +47,36 @@ std::queue<const GOAPAction*> GOAPPlanner::Plan(Elite::Blackboard* pBlackboard)
 	const Goals goals{ pAgent->GetGoals() };
 	const WorldState worldState{ DataProvider::GetWorldState(pBlackboard) };
 
-	std::vector<const Node*> succesfulNodes{ };
+	std::vector<int> successfulNodeIndices{ };
 
 
 	const float fullGoalsCompletionValue{ GetFullGoalsCompletionValue(goals) };
 	const float initialGoalsFulfilledPercentage{ GetGoalsFulfilledPercentage(worldState, goals, fullGoalsCompletionValue) };
 
-	const Node pStartingNode{ nullptr, nullptr, worldState, 0, initialGoalsFulfilledPercentage };
+	const int startingNodeIndex{ MakeNode(Node::InvalidIndex, nullptr, worldState, 0, initialGoalsFulfilledPercentage) };
 
 	// Try building a graph
-	if (!BuildGraph(&pStartingNode, succesfulNodes, pAgent->GetAvailableActions(), goals, fullGoalsCompletionValue))
+	if (!BuildGraph(startingNodeIndex, successfulNodeIndices, pAgent->GetAvailableActions(), goals, fullGoalsCompletionValue))
 	{
 		m_NextAvailableNodeIndex = 0;
-
-		std::cout << "No plan!\n";
 		return plan;
 	}
 
 	std::vector<const GOAPAction*> reversePlan;
 
-	const Node* pNode{ GetBestSuccesfulNode(succesfulNodes) };
-	while (pNode != nullptr)
-	{
-		if (pNode->m_pAction == nullptr)
-			break;
+	int nodeIndex{ GetBestSuccesfulNode(successfulNodeIndices, m_CreatedNodes) };
 
-		reversePlan.push_back(pNode->m_pAction);
-		pNode = pNode->m_pParent;
+	while (nodeIndex != startingNodeIndex)
+	{
+		const Node& node{ m_CreatedNodes[nodeIndex] };
+		if (node.m_pAction == nullptr)
+		{
+			std::cout << "An action in plan was null!\n";
+			break;
+		}
+
+		reversePlan.push_back(node.m_pAction);
+		nodeIndex = node.m_ParentNodeIndex;
 	}
 
 	m_NextAvailableNodeIndex = 0;
@@ -83,38 +90,38 @@ std::queue<const GOAPAction*> GOAPPlanner::Plan(Elite::Blackboard* pBlackboard)
 	return plan;
 }
 
-bool GOAPPlanner::BuildGraph(const Node* pParent, std::vector<const Node*>& successfulNodes, std::set<const GOAPAction*> availableActions, const Goals& goals, const float fullGoalsCompletionValue)
+bool GOAPPlanner::BuildGraph(const int parentNodeIndex, std::vector<int>& successfulNodeIndices, std::set<const GOAPAction*> availableActions, const Goals& goals, const float fullGoalsCompletionValue)
 {
 	bool foundSolution{ false };
 
 	for (const auto& action : availableActions)
 	{
-		if (AreAllPreconditionsMet(action->GetPreconditions(), pParent->m_CumulativeStates))
+		if (AreAllPreconditionsMet(action->GetPreconditions(), m_CreatedNodes[parentNodeIndex].m_CumulativeStates))
 		{
-			const WorldState newState{ ApplyState(pParent->m_CumulativeStates, action->GetEffects()) };
+			const WorldState newState{ ApplyEffects(action, m_CreatedNodes[parentNodeIndex].m_CumulativeStates) };
 			const float goalsFulfilledPercentage{ GetGoalsFulfilledPercentage(newState, goals, fullGoalsCompletionValue) };
 
-			const Node* pNewNode{ MakeNode(pParent, action, newState, pParent->m_Cost + action->GetCost(), goalsFulfilledPercentage) };
+			const int newNodeIndex{ MakeNode(m_CreatedNodes[parentNodeIndex].m_NodeIndex, action, newState, m_CreatedNodes[parentNodeIndex].m_Cost + action->GetCost(), goalsFulfilledPercentage) };
 
 			if (goalsFulfilledPercentage == 100.0f)
 			{
 				// Found a complete solution!
-				successfulNodes.push_back(pNewNode);
+				successfulNodeIndices.push_back(newNodeIndex);
 				foundSolution = true;
 			}
 			else
 			{
-				if (goalsFulfilledPercentage > pParent->m_GoalsFulfilledPercentage)
+				if (goalsFulfilledPercentage > m_CreatedNodes[parentNodeIndex].m_GoalsFulfilledPercentage)
 				{
 					// Found a partial solution
-					successfulNodes.push_back(pNewNode);
+					successfulNodeIndices.push_back(newNodeIndex);
 					foundSolution = true;
 				}
 
 				// No complete solution yet, test for the remaining actions
 				const std::set<const GOAPAction*> newAvailableActions{ ActionSubset(availableActions, action) };
 
-				if (!newAvailableActions.empty() && BuildGraph(pNewNode, successfulNodes, newAvailableActions, goals, fullGoalsCompletionValue))
+				if (!newAvailableActions.empty() && BuildGraph(newNodeIndex, successfulNodeIndices, newAvailableActions, goals, fullGoalsCompletionValue))
 				{
 					foundSolution = true;
 				}
@@ -173,23 +180,13 @@ float GOAPPlanner::GetGoalsFulfilledPercentage(const WorldState& currentWorldSta
 	return goalsFulfilledPercentage;
 }
 
-WorldState GOAPPlanner::ApplyState(const WorldState& currentStates, const WorldState& statesToApply)
+WorldState GOAPPlanner::ApplyEffects(const GOAPAction* action, const WorldState& currentState)
 {
-	WorldState newStates{ currentStates };
+	WorldState newState{ currentState };
+	Helpers::ApplyState(action->GetEffects(), newState);
+	Helpers::ApplyState(action->GetPlanOnlyEffects(), newState);
 
-	for (const auto& state : statesToApply)
-	{
-		if (newStates.find(state.first) != newStates.end())
-		{
-			newStates[state.first] = state.second;
-		}
-		else
-		{
-			newStates.insert({ state.first, state.second });
-		}
-	}
-
-	return newStates;
+	return newState;
 }
 
 std::set<const GOAPAction*> GOAPPlanner::ActionSubset(const std::set<const GOAPAction*> actions, const GOAPAction* pActionToExclude)
@@ -205,22 +202,21 @@ std::set<const GOAPAction*> GOAPPlanner::ActionSubset(const std::set<const GOAPA
 	return actionSubset;
 }
 
-const Node* GOAPPlanner::MakeNode(const Node* pParent, const GOAPAction* pAction, const WorldState& cumulativeStates, const int cost, const float goalsFulfilledPercentage)
+int GOAPPlanner::MakeNode(const int parentNodeIndex, const GOAPAction* pAction, const WorldState& cumulativeStates, const int cost, const float goalsFulfilledPercentage)
 {
-	const Node* pNode{ nullptr };
+	const int newNodeIndex{ m_NextAvailableNodeIndex };
 
-	if (m_NextAvailableNodeIndex < int(m_CreatedNodes.size()))
+	if (newNodeIndex >= int(m_CreatedNodes.size()))
 	{
-		m_CreatedNodes[m_NextAvailableNodeIndex].SetData(pParent, pAction, cumulativeStates, cost, goalsFulfilledPercentage);
-		pNode = &m_CreatedNodes[m_NextAvailableNodeIndex];
+		m_CreatedNodes.emplace_back(newNodeIndex, parentNodeIndex, pAction, cumulativeStates, cost, goalsFulfilledPercentage);
 	}
 	else
 	{
-		pNode = &m_CreatedNodes.emplace_back(pParent, pAction, cumulativeStates, cost, goalsFulfilledPercentage);
+		m_CreatedNodes[newNodeIndex].SetData(parentNodeIndex, pAction, cumulativeStates, cost, goalsFulfilledPercentage);
 	}
 
 	++m_NextAvailableNodeIndex;
-	return pNode;
+	return newNodeIndex;
 }
 
 float GOAPPlanner::GetFullGoalsCompletionValue(const Goals& goals)
@@ -232,17 +228,17 @@ float GOAPPlanner::GetFullGoalsCompletionValue(const Goals& goals)
 		});
 }
 
-const Node* GOAPPlanner::GetBestSuccesfulNode(const std::vector<const Node*>& successfulNodes)
+int GOAPPlanner::GetBestSuccesfulNode(const std::vector<int>& successfulNodes, const std::vector<Node>& nodes)
 {
 	// We get the plan that fulfills the most goals with least cost.
 	// A plan might fulfill more goals but cost too much and be less preferable than one that completes less goals but is cheap.
 
 	return *std::ranges::max_element(successfulNodes,
-		[](const Node* left, const Node* right)
+		[nodes](int leftIndex, int rightIndex)
 		{
 			// Goal percentage per cost
-			const float leftGoalCompletionPerCost{ left->m_GoalsFulfilledPercentage / left->m_Cost };
-			const float rightGoalCompletionPerCost{ right->m_GoalsFulfilledPercentage / right->m_Cost };
+			const float leftGoalCompletionPerCost{ nodes[leftIndex].m_GoalsFulfilledPercentage / nodes[leftIndex].m_Cost};
+			const float rightGoalCompletionPerCost{ nodes[rightIndex].m_GoalsFulfilledPercentage / nodes[rightIndex].m_Cost };
 
 			return leftGoalCompletionPerCost < rightGoalCompletionPerCost;
 		});

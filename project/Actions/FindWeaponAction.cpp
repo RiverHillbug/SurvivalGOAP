@@ -9,7 +9,7 @@ FindWeaponAction::FindWeaponAction()
 	AddPrecondition(HAS_WEAPON_IN_SIGHT_PARAM, true);
 	AddPrecondition(HAS_TARGET_WEAPON_PARAM, false);
 
-	AddEffect(HAS_TARGET_WEAPON_PARAM, true);
+	AddPlanOnlyEffect(HAS_TARGET_WEAPON_PARAM, true);
 }
 
 bool FindWeaponAction::IsCorrectItemType(const ItemInfo& item) const

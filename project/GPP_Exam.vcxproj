@@ -202,12 +202,14 @@
     <ClInclude Include="Actions\GrabItemAction.h" />
     <ClInclude Include="Actions\GrabMedkitAction.h" />
     <ClInclude Include="Actions\GrabWeaponAction.h" />
+    <ClInclude Include="Helpers.h" />
     <ClInclude Include="SurvivalAgentPlugin.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Actions\UseFoodAction.h" />
     <ClInclude Include="Actions\UseItemAction.h" />
     <ClInclude Include="Actions\UseMedkitAction.h" />
     <ClInclude Include="Actions\UseWeaponAction.h" />
+    <ClInclude Include="Actions\ExploreAction.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DecisionMaking\FiniteStateMachines\GOAPStates.cpp" />
@@ -224,6 +226,7 @@
     <ClCompile Include="Actions\GrabItemAction.cpp" />
     <ClCompile Include="Actions\GrabMedkitAction.cpp" />
     <ClCompile Include="Actions\GrabWeaponAction.cpp" />
+    <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="SurvivalAgentPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -233,6 +236,7 @@
     <ClCompile Include="Actions\UseItemAction.cpp" />
     <ClCompile Include="Actions\UseMedkitAction.cpp" />
     <ClCompile Include="Actions\UseWeaponAction.cpp" />
+    <ClCompile Include="Actions\ExploreAction.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

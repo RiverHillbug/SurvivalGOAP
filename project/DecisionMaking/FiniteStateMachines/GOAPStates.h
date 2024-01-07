@@ -5,40 +5,59 @@
 /*=============================================================================*/
 
 #pragma once
-#include "EliteAI/EliteData/EBlackboard.h"
 #include "EliteAI/EliteDecisionMaking/EliteFiniteStateMachine/EFiniteStateMachine.h"
 
-using namespace Elite;
+namespace Elite
+{
+	class Blackboard;
+}
 
-class PlanningState : public FSMState
+class PlanningState : public Elite::FSMState
 {
 public:
 	PlanningState() {};
 	~PlanningState() {};
-	void Update(Blackboard* pBlackboard, float deltaTime) override;
+
+	void Update(Elite::Blackboard* pBlackboard, float deltaTime) const override;
+	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 };
 
-class MoveToState : public FSMState
+class MoveToState : public Elite::FSMState
 {
 public:
 	MoveToState() {};
 	~MoveToState() {};
-	void OnEnter(Blackboard* pBlackboard) override;
-	void Update(Blackboard* pBlackboard, float deltaTime) override;
+
+	void Update(Elite::Blackboard* pBlackboard, float deltaTime) const override;
+	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 };
 
-class PerformActionState : public FSMState
+class PerformActionState : public Elite::FSMState
 {
 public:
 	PerformActionState() {};
 	~PerformActionState() {};
-	void Update(Blackboard* pBlackboard, float deltaTime) override;
+
+	void Update(Elite::Blackboard* pBlackboard, float deltaTime) const override;
+	void OnExit(Elite::Blackboard* pBlackboard) const override;
+
+	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 };
 
-class NeedsRange : public FSMCondition
+class NeedsRangeCondition : public Elite::FSMCondition
 {
 public:
-	NeedsRange() = default;
-	~NeedsRange() = default;
-	bool Evaluate(const Blackboard* pBlackboard) const override;
+	NeedsRangeCondition() = default;
+	~NeedsRangeCondition() = default;
+
+	bool Evaluate(const Elite::Blackboard* pBlackboard) const override;
+};
+
+class HasPlanCondition : public Elite::FSMCondition
+{
+public:
+	HasPlanCondition() = default;
+	~HasPlanCondition() = default;
+
+	bool Evaluate(const Elite::Blackboard* pBlackboard) const override;
 };

@@ -13,6 +13,7 @@ public:
 	~FindItemAction() = default;
 
 	bool Perform(Elite::Blackboard* pBlackboard) const override;
+	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 
 	virtual bool IsCorrectItemType(const struct ItemInfo& item) const = 0;
 };

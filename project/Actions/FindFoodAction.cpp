@@ -9,7 +9,7 @@ FindFoodAction::FindFoodAction()
 	AddPrecondition(HAS_FOOD_IN_SIGHT_PARAM, true);
 	AddPrecondition(HAS_TARGET_FOOD_PARAM, false);
 
-	AddEffect(HAS_TARGET_FOOD_PARAM, true);
+	AddPlanOnlyEffect(HAS_TARGET_FOOD_PARAM, true);
 }
 
 bool FindFoodAction::IsCorrectItemType(const ItemInfo& item) const

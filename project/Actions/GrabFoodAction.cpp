@@ -8,5 +8,5 @@ GrabFoodAction::GrabFoodAction()
 	AddPrecondition(HAS_TARGET_FOOD_PARAM, true);
 
 	AddEffect(HAS_FOOD_PARAM, true);
-	AddEffect(HAS_TARGET_FOOD_PARAM, false);
+	AddPlanOnlyEffect(HAS_TARGET_FOOD_PARAM, false);
 }

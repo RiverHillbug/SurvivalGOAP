@@ -4,22 +4,15 @@
 #include "BlackboardTypes.h"
 #include "EliteAI\EliteData\EBlackboard.h"
 #include "EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h"
+#include "DecisionMaking\FiniteStateMachines\GOAPStates.h"
 #include "Actions\GOAPActions.h"
 #include "GOAPPlanner.h"
 
 using namespace std;
 
 SurvivalAgentPlugin::SurvivalAgentPlugin()
-	: m_pGOAPPlanner{ new GOAPPlanner() }
-	, m_pBlackboard{ new Elite::Blackboard() }
 {
-	//m_Goals.insert({ STAY_ALIVE_PARAM, 100.0f });
-	m_Goals.insert({ KILL_ENEMY_PARAM, 90.0f });
-	m_Goals.insert({ HAS_HIGH_ENERGY_PARAM, 60.0f });
-	m_Goals.insert({ HAS_HIGH_HEALTH_PARAM, 60.0f });
-	m_Goals.insert({ HAS_WEAPON_PARAM, 25.0f });
-	m_Goals.insert({ HAS_FOOD_PARAM, 10.0f });
-	m_Goals.insert({ HAS_MEDKIT_PARAM, 10.0f });
+	InitializeGoals();
 }
 
 //Called only once, during initialization
@@ -40,17 +33,10 @@ void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& inf
 		m_UsedInventorySlots.push_back(false);
 	}
 
-	m_pBlackboard->SetData(AGENT_PARAM, this);
+	m_Blackboard.SetData(AGENT_PARAM, this);
 
-	m_AvailableActions.insert(new FindWeaponAction());
-	m_AvailableActions.insert(new FindFoodAction());
-	m_AvailableActions.insert(new FindMedkitAction());
-	m_AvailableActions.insert(new GrabWeaponAction());
-	m_AvailableActions.insert(new GrabFoodAction());
-	m_AvailableActions.insert(new GrabMedkitAction());
-	m_AvailableActions.insert(new UseWeaponAction());
-	m_AvailableActions.insert(new UseFoodAction());
-	m_AvailableActions.insert(new UseMedkitAction());
+	InitializeAvailableActions();
+	InitializeFSM();
 }
 
 //Called only once
@@ -91,15 +77,13 @@ void SurvivalAgentPlugin::Update_Debug(float dt)
 {
 	//Demo Event Code
 
-	m_pGOAPPlanner->Plan(m_pBlackboard);
-
 	//In the end your Agent should be able to walk around without external input
 	if (m_pInterface->Input_IsMouseButtonUp(Elite::InputMouseButton::eLeft))
 	{
 		//Update_Debug target based on input
 		Elite::MouseData mouseData = m_pInterface->Input_GetMouseData(Elite::InputType::eMouseButton, Elite::InputMouseButton::eLeft);
 		const Elite::Vector2 pos = Elite::Vector2(static_cast<float>(mouseData.X), static_cast<float>(mouseData.Y));
-		m_Target = m_pInterface->Debug_ConvertScreenToWorld(pos);
+		m_Destination = m_pInterface->Debug_ConvertScreenToWorld(pos);
 	}
 	else if (m_pInterface->Input_IsKeyboardKeyDown(Elite::eScancode_Space))
 	{
@@ -158,6 +142,8 @@ void SurvivalAgentPlugin::Update_Debug(float dt)
 //This function calculates the new SteeringOutput, called once per frame
 SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 {
+	m_FSM.Update(dt);
+
 	auto steering = SteeringPlugin_Output();
 
 	//Use the Interface (IAssignmentInterface) to 'interface' with the AI_Framework
@@ -168,7 +154,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 	//auto nextTargetPos = m_pInterface->NavMesh_GetClosestPathPoint(checkpointLocation);
 
 	//OR, Use the mouse target
-	auto nextTargetPos = m_pInterface->NavMesh_GetClosestPathPoint(m_Target);
+	auto nextTargetPos = m_pInterface->NavMesh_GetClosestPathPoint(m_Destination);
 
 	//FOV USAGE DEMO
 	//===============
@@ -240,7 +226,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 	steering.LinearVelocity.Normalize(); //Normalize Desired Velocity
 	steering.LinearVelocity *= agentInfo.MaxLinearSpeed; //Rescale to Max Speed
 
-	if (Distance(nextTargetPos, agentInfo.Position) < 2.f)
+	if (IsApproximatelyAt(nextTargetPos))
 	{
 		steering.LinearVelocity = Elite::ZeroVector2;
 	}
@@ -266,7 +252,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 void SurvivalAgentPlugin::Render(float dt) const
 {
 	//This Render function should only contain calls to Interface->Draw_... functions
-	m_pInterface->Draw_SolidCircle(m_Target, 0.7f, { 0, 0 }, { 1, 0, 0 });
+	m_pInterface->Draw_SolidCircle(m_Destination, 0.7f, { 0, 0 }, { 1, 0, 0 });
 }
 
 UINT SurvivalAgentPlugin::SelectFirstAvailableInventorySlot()
@@ -304,8 +290,66 @@ bool SurvivalAgentPlugin::HasInventorySpace() const
 
 bool SurvivalAgentPlugin::TryPlan(OUT std::queue<const GOAPAction*>& plan)
 {
-	plan = m_pGOAPPlanner->Plan(m_pBlackboard);
+	plan = m_GOAPPlanner.Plan(&m_Blackboard);
 	return !plan.empty();
+}
+
+bool SurvivalAgentPlugin::IsApproximatelyAt(const Elite::Vector2& position) const
+{
+	const AgentInfo& agentInfo{ m_pInterface->Agent_GetInfo() };
+
+	const float distanceToleranceSqd{ agentInfo.GrabRange * agentInfo.GrabRange };
+	return DistanceSquared(position, agentInfo.Position) <= distanceToleranceSqd;
+}
+
+void SurvivalAgentPlugin::InitializeFSM()
+{
+	PlanningState* pPlanningState{ new PlanningState() };
+	MoveToState* pMoveToState{ new MoveToState() };
+	PerformActionState* pPerformActionState{ new PerformActionState() };
+	const NeedsRangeCondition* pNeedsRangeCondition{ new NeedsRangeCondition() };
+	const HasPlanCondition* pHasPlanCondition{ new HasPlanCondition() };
+
+	pPlanningState->AddTransition(pMoveToState, pNeedsRangeCondition);
+	pPlanningState->AddTransition(pPerformActionState);
+
+	pMoveToState->AddTransition(pPerformActionState);
+
+	pPerformActionState->AddTransition(pMoveToState, pNeedsRangeCondition);
+	pPerformActionState->AddTransition(pPerformActionState, pHasPlanCondition);
+	pPerformActionState->AddTransition(pPlanningState);
+
+	m_FSM.SetBlackboard(&m_Blackboard);
+	m_FSM.AddState(pPlanningState);
+	m_FSM.AddState(pMoveToState);
+	m_FSM.AddState(pPerformActionState);
+	m_FSM.AddCondition(pNeedsRangeCondition);
+	m_FSM.AddCondition(pHasPlanCondition);
+	m_FSM.EnterState(pPlanningState);
+}
+
+void SurvivalAgentPlugin::InitializeGoals()
+{
+	m_Goals.emplace(KILL_ENEMY_PARAM, 90.0f);
+	m_Goals.emplace(HAS_HIGH_ENERGY_PARAM, 60.0f);
+	m_Goals.emplace(HAS_HIGH_HEALTH_PARAM, 60.0f);
+	m_Goals.emplace(HAS_WEAPON_PARAM, 25.0f);
+	m_Goals.emplace(HAS_FOOD_PARAM, 10.0f);
+	m_Goals.emplace(HAS_MEDKIT_PARAM, 10.0f);
+	m_Goals.emplace(FILL_INVENTORY_SPACE_PARAM, 5.0f);
+}
+
+void SurvivalAgentPlugin::InitializeAvailableActions()
+{
+	m_AvailableActions.insert(new FindWeaponAction());
+	m_AvailableActions.insert(new FindFoodAction());
+	m_AvailableActions.insert(new FindMedkitAction());
+	m_AvailableActions.insert(new GrabWeaponAction());
+	m_AvailableActions.insert(new GrabFoodAction());
+	m_AvailableActions.insert(new GrabMedkitAction());
+	m_AvailableActions.insert(new UseWeaponAction());
+	m_AvailableActions.insert(new UseFoodAction());
+	m_AvailableActions.insert(new UseMedkitAction());
 }
 
 UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const

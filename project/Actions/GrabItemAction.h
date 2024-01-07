@@ -1,5 +1,6 @@
 #pragma once
 #include "GOAPAction.h"
+#include <EliteMath/EVector2.h>
 
 namespace Elite
 {
@@ -12,6 +13,10 @@ public:
 	GrabItemAction();
 	~GrabItemAction() = default;
 
-	void Reset() override;
+	bool TryGetDestination(const Elite::Blackboard* pBlackboard, OUT Elite::Vector2& destination) const override;
+
 	bool Perform(Elite::Blackboard* pBlackboard) const override;
+	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
+
+	virtual const std::string& GetItemTypeSlotParam() const = 0;
 };

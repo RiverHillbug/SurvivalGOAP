@@ -3,11 +3,13 @@
 #include "SurvivalAgentPlugin.h"
 #include "BlackboardTypes.h"
 #include "Actions\GOAPAction.h"
+#include "EliteAI\EliteData\EBlackboard.h"
+#include "Helpers.h"
 
-void PlanningState::Update(Blackboard* pBlackboard, float deltaTime)
+void PlanningState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
 {
-	SurvivalAgentPlugin* pAgent;
-	if (!pBlackboard->GetData(AGENT_PARAM, pAgent))
+	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
 		return;
 
 	std::queue<const GOAPAction*> plan;
@@ -15,43 +17,90 @@ void PlanningState::Update(Blackboard* pBlackboard, float deltaTime)
 	if (pAgent->TryPlan(plan))
 	{
 		pAgent->SetPlan(plan);
-		m_IsDone = true;
 	}
 }
 
-void MoveToState::OnEnter(Blackboard* pBlackboard)
+bool PlanningState::IsDone(const Elite::Blackboard* pBlackboard) const
 {
-	FSMState::OnEnter(pBlackboard);
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	return pAgent != nullptr && !pAgent->GetPlan().empty();
 }
 
-void MoveToState::Update(Blackboard* pBlackboard, float deltaTime)
-{
+//----------------------------------------------------------
 
-}
-
-void PerformActionState::Update(Blackboard* pBlackboard, float deltaTime)
+void MoveToState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
 {
-	SurvivalAgentPlugin* pAgent;
-	if (!pBlackboard->GetData(AGENT_PARAM, pAgent))
+	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
 		return;
 
-	std::queue<const GOAPAction*> plan{ pAgent->GetPlan() };
+	const std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
+
+	Elite::Vector2 destination;
+	if (plan.front() && plan.front()->TryGetDestination(pBlackboard, destination))
+	{
+		pAgent->SetDestination(destination);
+	}
+}
+
+bool MoveToState::IsDone(const Elite::Blackboard* pBlackboard) const
+{
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	return pAgent != nullptr && pAgent->IsApproximatelyAt(pAgent->GetDestination());
+}
+
+//----------------------------------------------------------
+
+void PerformActionState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
+{
+	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return;
+
+	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
 	const GOAPAction* pCurrentAction{ plan.front() };
 
 	pCurrentAction->Perform(pBlackboard);
-	if (pCurrentAction->IsDone())
-	{
-		plan.pop();
-	}
 }
 
-bool NeedsRange::Evaluate(const Blackboard* pBlackboard) const
+void PerformActionState::OnExit(Elite::Blackboard* pBlackboard) const
 {
-	SurvivalAgentPlugin* pAgent;
-	if (!pBlackboard->GetData(AGENT_PARAM, pAgent))
+	SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return;
+
+	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
+
+	Helpers::ApplyState(plan.front()->GetEffects(), pBlackboard);
+	plan.pop();
+}
+
+bool PerformActionState::IsDone(const Elite::Blackboard* pBlackboard) const
+{
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
 		return false;
 
-	const std::queue<const GOAPAction*> plan{ pAgent->GetPlan() };
+	const std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
+	return plan.empty() || plan.front()->IsDone(pBlackboard);
+}
 
+//----------------------------------------------------------
+
+bool NeedsRangeCondition::Evaluate(const Elite::Blackboard* pBlackboard) const
+{
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return false;
+
+	const std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
 	return !plan.empty() && plan.front()->RequiresInRange();
+}
+
+//----------------------------------------------------------
+
+bool HasPlanCondition::Evaluate(const Elite::Blackboard* pBlackboard) const
+{
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	return pAgent != nullptr && !pAgent->GetPlan().empty();
 }

@@ -8,5 +8,5 @@ GrabWeaponAction::GrabWeaponAction()
 	AddPrecondition(HAS_TARGET_WEAPON_PARAM, true);
 
 	AddEffect(HAS_WEAPON_PARAM, true);
-	AddEffect(HAS_TARGET_WEAPON_PARAM, false);
+	AddPlanOnlyEffect(HAS_TARGET_WEAPON_PARAM, false);
 }

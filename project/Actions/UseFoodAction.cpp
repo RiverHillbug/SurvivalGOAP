@@ -8,6 +8,5 @@ UseFoodAction::UseFoodAction()
 	AddPrecondition(HAS_FOOD_PARAM, true);
 	AddPrecondition(HAS_HIGH_ENERGY_PARAM, false);
 
-	//AddEffect(STAY_ALIVE_PARAM, true);
-	AddEffect(HAS_HIGH_ENERGY_PARAM, false);
+	AddPlanOnlyEffect(HAS_HIGH_ENERGY_PARAM, false);
 }

@@ -8,5 +8,5 @@ GrabMedkitAction::GrabMedkitAction()
 	AddPrecondition(HAS_TARGET_MEDKIT_PARAM, true);
 
 	AddEffect(HAS_MEDKIT_PARAM, true);
-	AddEffect(HAS_TARGET_MEDKIT_PARAM, false);
+	AddPlanOnlyEffect(HAS_TARGET_MEDKIT_PARAM, false);
 }

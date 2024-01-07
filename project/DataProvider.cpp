@@ -21,12 +21,12 @@ std::unordered_map<std::string, bool> DataProvider::GetWorldState(Elite::Blackbo
 
 	EnterData(HAS_INVENTORY_SPACE_PARAM, pAgent->HasInventorySpace(), pBlackboard, worldState);
 
-	EnterData(HAS_ENEMY_IN_SIGHT_PARAM, false /*pInterface->FOV_GetStats().NumEnemies > 0*/, pBlackboard, worldState);
-	EnterData(HAS_HOUSE_IN_SIGHT_PARAM, true /*pInterface->FOV_GetStats().NumHouses > 0*/, pBlackboard, worldState);
+	EnterData(HAS_ENEMY_IN_SIGHT_PARAM, pInterface->FOV_GetStats().NumEnemies > 0, pBlackboard, worldState);
+	EnterData(HAS_HOUSE_IN_SIGHT_PARAM, pInterface->FOV_GetStats().NumHouses > 0, pBlackboard, worldState);
 
-	bool hasWeaponInSight{ true /*false*/ };
-	bool hasFoodInSight{ true /*false*/ };
-	bool hasMedkitInSight{ true /*false*/ };
+	bool hasWeaponInSight{ false };
+	bool hasFoodInSight{ false };
+	bool hasMedkitInSight{ false };
 
 	const std::vector<ItemInfo> itemsInFOV{ pInterface->GetItemsInFOV() };
 
@@ -53,8 +53,22 @@ std::unordered_map<std::string, bool> DataProvider::GetWorldState(Elite::Blackbo
 	EnterData(HAS_FOOD_IN_SIGHT_PARAM, hasFoodInSight, pBlackboard, worldState);
 	EnterData(HAS_MEDKIT_IN_SIGHT_PARAM, hasMedkitInSight, pBlackboard, worldState);
 
-	EnterData(HAS_HIGH_ENERGY_PARAM, true, pBlackboard, worldState);
-	EnterData(HAS_HIGH_HEALTH_PARAM, true, pBlackboard, worldState);
+	const AgentInfo& agentInfo{ pInterface->Agent_GetInfo() };
+
+	const float lowHealthTreshold{ 5.0f };
+	EnterData(HAS_HIGH_HEALTH_PARAM, agentInfo.Health > lowHealthTreshold, pBlackboard, worldState);
+
+	const float lowEnergyTreshold{ 5.0f };
+	EnterData(HAS_HIGH_ENERGY_PARAM, agentInfo.Energy > lowEnergyTreshold, pBlackboard, worldState);
+
+	std::vector<UINT> usedWeaponSlots;
+	EnterData(HAS_WEAPON_PARAM, pBlackboard->GetData(WEAPON_SLOTS_PARAM, usedWeaponSlots) && !usedWeaponSlots.empty(), pBlackboard, worldState);
+
+	std::vector<UINT> usedFoodSlots;
+	EnterData(HAS_FOOD_PARAM, pBlackboard->GetData(FOOD_SLOTS_PARAM, usedFoodSlots) && !usedFoodSlots.empty(), pBlackboard, worldState);
+
+	std::vector<UINT> usedMedkitSlots;
+	EnterData(HAS_MEDKIT_PARAM, pBlackboard->GetData(MEDKIT_SLOTS_PARAM, usedMedkitSlots) && !usedMedkitSlots.empty(), pBlackboard, worldState);
 
 	return worldState;
 }

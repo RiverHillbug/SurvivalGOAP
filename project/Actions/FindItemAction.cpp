@@ -6,6 +6,7 @@
 #include "Exam_HelperStructs.h"
 #include "EliteAI\EliteData\EBlackboard.h"
 #include "EliteMath\EVector2.h"
+#include "Helpers.h"
 #include <algorithm>
 
 FindItemAction::FindItemAction()
@@ -18,36 +19,41 @@ FindItemAction::FindItemAction()
 
 bool FindItemAction::Perform(Elite::Blackboard* pBlackboard) const
 {
-	SurvivalAgentPlugin* pAgent{ nullptr };
-	if (pBlackboard->GetData(AGENT_PARAM, pAgent))
-	{
-		const std::vector<ItemInfo> allItemsInFOV{ pAgent->GetInterface()->GetItemsInFOV() };
-		std::vector<ItemInfo> correctItemsInFOV{ allItemsInFOV.size() };
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return false;
 
-		// Copy all items that are of the correct type from allItemsInFOV into correctItemsInFOV
-		std::ranges::copy_if(allItemsInFOV, std::back_inserter(correctItemsInFOV),
-			[this](const ItemInfo& item)
-			{
-				return IsCorrectItemType(item);
-			});
+	const std::vector<ItemInfo> allItemsInFOV{ pAgent->GetInterface()->GetItemsInFOV() };
+	std::vector<ItemInfo> correctItemsInFOV{};
 
-		const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
+	// Copy all items that are of the correct type from allItemsInFOV into correctItemsInFOV
+	std::ranges::copy_if(allItemsInFOV, std::back_inserter(correctItemsInFOV),
+		[this](const ItemInfo& item)
+		{
+			return IsCorrectItemType(item);
+		});
 
-		const ItemInfo closestWeapon{ *std::ranges::min_element(correctItemsInFOV,
-			[agentLocation](const ItemInfo& left, const ItemInfo& right)
-			{
-				const float distanceLeft{ (left.Location - agentLocation).MagnitudeSquared() };
-				const float distanceRight{ (right.Location - agentLocation).MagnitudeSquared() };
+	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
 
-				return distanceLeft < distanceRight;
-			}) };
+	const ItemInfo closestItem{ *std::ranges::min_element(correctItemsInFOV,
+		[agentLocation](const ItemInfo& left, const ItemInfo& right)
+		{
+			const float distanceLeft{ (left.Location - agentLocation).MagnitudeSquared() };
+			const float distanceRight{ (right.Location - agentLocation).MagnitudeSquared() };
 
-		pBlackboard->SetData(TARGET_ITEM_PARAM, closestWeapon);
+			return distanceLeft < distanceRight;
+		}) };
 
-		//m_IsDone = true;
-		return true;
-	}
+	pBlackboard->SetData(TARGET_ITEM_PARAM, closestItem);
+	return true;
+}
 
-	//m_IsDone = true;
-	return false;
+bool FindItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
+{
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return false;
+
+	ItemInfo targetWeapon;
+	return pBlackboard->GetData(TARGET_ITEM_PARAM, targetWeapon);
 }
