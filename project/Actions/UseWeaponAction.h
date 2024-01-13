@@ -19,4 +19,5 @@ public:
 
 private:
 	const float m_FacingAngleRadians{ 2.0f * (float(E_PI) / 180.0f) };
+	const float m_FleeDistance{ 10.0f };
 };

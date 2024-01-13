@@ -14,12 +14,14 @@ class SurvivalAgentPlugin;
 
 namespace Helpers
 {
-	bool IsNearlyEqual(const float value, const float tolerance = 0.01f);
+	bool IsNearlyEqual(const float value, const float other, const float tolerance = 0.01f);
 
 	SurvivalAgentPlugin* GetAgent(const Elite::Blackboard* pBlackboard);
 
 	void ApplyState(const WorldState& stateToApply, OUT WorldState& currentState);
 	void ApplyState(const WorldState& stateToApply, OUT Elite::Blackboard* pBlackboard);
+
+	bool ShouldConsiderNewPlan(const WorldState& currentState, const WorldState& previousState);
 
 	template<typename T>
 	T GetClosestFromPosition(const std::vector<T> items, const Elite::Vector2& position, std::function<Elite::Vector2(const T&)> positionSelector)

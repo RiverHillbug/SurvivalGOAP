@@ -10,3 +10,4 @@
 #include "UseMedkitAction.h"
 #include "ExploreAction.h"
 #include "SearchHouseAction.h"
+#include "FleeFromEnemyAction.h"

@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <iostream>
 
-bool Helpers::IsNearlyEqual(const float value, const float tolerance /*= 0.01f*/)
+bool Helpers::IsNearlyEqual(const float value, const float other, const float tolerance /*= 0.01f*/)
 {
-	return std::abs(value - 100.0f) <= tolerance;
+	return std::abs(value - other) <= tolerance;
 }
 
 SurvivalAgentPlugin* Helpers::GetAgent(const Elite::Blackboard* pBlackboard)
@@ -35,6 +35,12 @@ void Helpers::ApplyState(const WorldState& stateToApply, OUT WorldState& current
 			currentState.insert({ state.first, state.second });
 		}
 	}
+}
+
+bool Helpers::ShouldConsiderNewPlan(const WorldState& currentState, const WorldState& previousState)
+{
+	return	(previousState.at(HAS_HIGH_ENERGY_PARAM) && !currentState.at(HAS_HIGH_ENERGY_PARAM)) ||
+			(previousState.at(HAS_HIGH_HEALTH_PARAM) && !currentState.at(HAS_HIGH_HEALTH_PARAM));
 }
 
 void Helpers::ExcludeSearchedHouses(OUT std::vector<HouseInfo>& houses, const std::unordered_set<HouseInfo>& searchedHouses)

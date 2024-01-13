@@ -36,4 +36,5 @@ static const std::string HAS_HIGH_HEALTH_PARAM{ "HasHighHealth" }; //use medkit
 static const std::string HAS_HIGH_ENERGY_PARAM{ "HasHighEnergy" }; //eat food
 
 static const std::string KILL_ENEMY_PARAM{ "KillEnemy" };
+static const std::string FLEE_FROM_ENEMY_PARAM{ "FleeFromEnemy" };
 static const std::string EXPLORE_PARAM{ "Explore" };
