@@ -8,6 +8,8 @@ public:
 	~FleeFromEnemyAction() = default;
 
 	bool Perform(Elite::Blackboard* pBlackboard) const override;
+	void OnExit(Elite::Blackboard* pBlackboard) const override;
+
 	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 
 private:

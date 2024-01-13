@@ -76,11 +76,17 @@ void DataProvider::CheckStats(const class SurvivalAgentPlugin* pAgent, Elite::Bl
 {
 	const AgentInfo& agentInfo{ pAgent->GetInterface()->Agent_GetInfo() };
 
-	const float lowHealthTreshold{ 5.0f };
-	EnterData(HAS_HIGH_HEALTH_PARAM, agentInfo.Health > lowHealthTreshold, pBlackboard, worldState);
+	const float highHealthThreshold{ 5.0f };
+	EnterData(HAS_HIGH_HEALTH_PARAM, agentInfo.Health > highHealthThreshold, pBlackboard, worldState);
 
-	const float lowEnergyTreshold{ 5.0f };
-	EnterData(HAS_HIGH_ENERGY_PARAM, agentInfo.Energy > lowEnergyTreshold, pBlackboard, worldState);
+	const float highEnergyThreshold{ 5.0f };
+	EnterData(HAS_HIGH_ENERGY_PARAM, agentInfo.Energy > highEnergyThreshold, pBlackboard, worldState);
+
+	const float highStaminaThreshold{ 5.0f };
+	EnterData(HAS_HIGH_STAMINA_PARAM, agentInfo.Stamina > highStaminaThreshold, pBlackboard, worldState);
+
+	const float lowStaminaThreshold{ 2.0f };
+	EnterData(HAS_LOW_STAMINA_PARAM, agentInfo.Stamina < lowStaminaThreshold, pBlackboard, worldState);
 }
 
 void DataProvider::CheckInventory(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState)

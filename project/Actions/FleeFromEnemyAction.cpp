@@ -20,6 +20,15 @@ bool FleeFromEnemyAction::Perform(Elite::Blackboard* pBlackboard) const
 	if (pAgent == nullptr)
 		return false;
 
+	if (pBlackboard->GetBoolData(HAS_HIGH_STAMINA_PARAM))
+	{
+		pAgent->SetCanRun(true);
+	}
+	if (pBlackboard->GetBoolData(HAS_LOW_STAMINA_PARAM))
+	{
+		pAgent->SetCanRun(false);
+	}
+
 	const std::vector<EnemyInfo> enemies{ pAgent->GetInterface()->GetEnemiesInFOV() };
 	if (enemies.empty())
 		return true;
@@ -41,8 +50,16 @@ bool FleeFromEnemyAction::IsDone(const Elite::Blackboard* pBlackboard) const
 		return true;
 	}
 
-	if (const SurvivalAgentPlugin * pAgent{ Helpers::GetAgent(pBlackboard) })
+	if (const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
 		return pAgent->IsApproximatelyAt(pAgent->GetDestination());
 
 	return true;
+}
+
+void FleeFromEnemyAction::OnExit(Elite::Blackboard* pBlackboard) const
+{
+	if (SurvivalAgentPlugin * pAgent{ Helpers::GetAgent(pBlackboard) })
+	{
+		pAgent->SetCanRun(false);
+	}
 }

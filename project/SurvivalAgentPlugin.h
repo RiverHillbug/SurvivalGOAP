@@ -45,6 +45,7 @@ public:
 
 	inline void SetAngularSpeed(const float speed) { m_AngSpeed = speed; }
 	inline void SetAutoOrient(const bool autoOrient) { m_AutoOrient = autoOrient; }
+	inline void SetCanRun(const bool canRun) { m_CanRun = canRun; }
 
 	bool IsApproximatelyAt(const Elite::Vector2& position) const;
 
