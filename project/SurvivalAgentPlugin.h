@@ -36,7 +36,7 @@ public:
 	inline const Goals& GetGoals() const { return m_Goals; }
 
 	bool TryPlan(OUT std::queue<const class GOAPAction*>& plan);
-	inline void SetPlan(const std::queue<const class GOAPAction*>& plan) { m_CurrentPlan = plan; }
+	void SetPlan(const std::queue<const class GOAPAction*>& plan);
 	inline std::queue<const class GOAPAction*>& GetPlan() { return m_CurrentPlan; }
 	inline const std::queue<const class GOAPAction*>& GetPlan() const { return m_CurrentPlan; }
 

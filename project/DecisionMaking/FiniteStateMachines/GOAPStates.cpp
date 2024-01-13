@@ -59,7 +59,10 @@ void PerformActionState::OnEnter(Elite::Blackboard* pBlackboard) const
 		return;
 
 	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
-	plan.front()->OnStart(pBlackboard);
+	if (!plan.empty())
+	{
+		plan.front()->OnStart(pBlackboard);
+	}
 }
 
 void PerformActionState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const

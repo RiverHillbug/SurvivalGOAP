@@ -326,6 +326,13 @@ bool SurvivalAgentPlugin::TryPlan(OUT std::queue<const GOAPAction*>& plan)
 	return !plan.empty();
 }
 
+
+void SurvivalAgentPlugin::SetPlan(const std::queue<const class GOAPAction*>& plan)
+{
+	m_CurrentPlan = plan;
+	m_CurrentStuckDuration = 0.0f;
+}
+
 bool SurvivalAgentPlugin::IsApproximatelyAt(const Elite::Vector2& position) const
 {
 	const AgentInfo& agentInfo{ m_pInterface->Agent_GetInfo() };
