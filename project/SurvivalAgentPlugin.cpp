@@ -7,6 +7,7 @@
 #include "DecisionMaking\FiniteStateMachines\GOAPStates.h"
 #include "Actions\GOAPActions.h"
 #include "GOAPPlanner.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -142,12 +143,43 @@ void SurvivalAgentPlugin::Update_Debug(float dt)
 //This function calculates the new SteeringOutput, called once per frame
 SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 {
-	m_FSM.Update(dt);
-
 	auto steering = SteeringPlugin_Output();
+
+	const WorldState currentWorldState{ DataProvider::GetWorldState(&m_Blackboard) };
+
+	if (!m_CurrentPlan.empty() && Helpers::ShouldConsiderNewPlan(currentWorldState, m_PreviousWorldState))
+	{
+		m_PreviousWorldState = currentWorldState;
+
+		AbortCurrentPlan();
+		return steering;
+	}
+
+	m_PreviousWorldState = currentWorldState;
+
+	m_FSM.Update(dt);
 
 	//Use the Interface (IAssignmentInterface) to 'interface' with the AI_Framework
 	auto agentInfo = m_pInterface->Agent_GetInfo();
+
+	const float stuckDistanceSqrd{ 0.001f };
+	if (m_LastPosition.DistanceSquared(agentInfo.Position) > stuckDistanceSqrd)
+	{
+		m_LastPosition = agentInfo.Position;
+		m_CurrentStuckDuration = 0.0f;
+	}
+	else
+	{
+		m_CurrentStuckDuration += dt;
+
+		if (m_CurrentStuckDuration >= m_StuckDurationThreshold)
+		{
+			AbortCurrentPlan();
+			m_CurrentStuckDuration = 0.0f;
+
+			return steering;
+		}
+	}
 
 
 	//Use the navmesh to calculate the next navmesh point
@@ -160,13 +192,13 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 	//===============
 
 	//FOV stats = CHEAP! info about the FOV
-	FOVStats stats = m_pInterface->FOV_GetStats();
+	/*FOVStats stats = m_pInterface->FOV_GetStats();*/
 
 	//FOV data (snapshot of the FOV of the current frame) = EXPENSIVE! returns a new vector for every call
-	auto vHousesInFOV = m_pInterface->GetHousesInFOV();
+	/*auto vHousesInFOV = m_pInterface->GetHousesInFOV();
 	auto vEnemiesInFOV = m_pInterface->GetEnemiesInFOV();
 	auto vItemsInFOV = m_pInterface->GetItemsInFOV();
-	auto vPurgezonesInFOV = m_pInterface->GetPurgeZonesInFOV();
+	auto vPurgezonesInFOV = m_pInterface->GetPurgeZonesInFOV();*/
 
 	//for (auto& zoneInfo : vPurgezonesInFOV)
 	//{
@@ -186,40 +218,40 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 	//INVENTORY USAGE DEMO
 	//********************
 
-	if (m_GrabItem)
-	{
-		ItemInfo item;
-		//Item_Grab > When DebugParams.AutoGrabClosestItem is TRUE, the Item_Grab function returns the closest item in range
-		//Keep in mind that DebugParams are only used for debugging purposes, by default this flag is FALSE
-		//Otherwise, use GetEntitiesInFOV() to retrieve a vector of all entities in the FOV (EntityInfo)
-		//Item_Grab gives you the ItemInfo back, based on the passed EntityHash (retrieved by GetEntitiesInFOV)
-		if (m_pInterface->GrabNearestItem(item))
-		{
-			//Once grabbed, you can add it to a specific inventory slot
-			//Slot must be empty
-			Inventory_AddItem(m_InventorySlot, item);
-		}
-	}
-
-	if (m_UseItem)
-	{
-		//Use an item (make sure there is an item at the given inventory slot)
-		m_pInterface->Inventory_UseItem(m_InventorySlot);
-	}
-
-	if (m_RemoveItem)
-	{
-		//Remove an item from a inventory slot
-		Inventory_RemoveItem(m_InventorySlot);
-	}
-
-	if (m_DestroyItemsInFOV)
-	{
-		for (auto& item : vItemsInFOV)
-		{
-			m_pInterface->DestroyItem(item);
-		}
-	}
+// 	if (m_GrabItem)
+// 	{
+// 		ItemInfo item;
+// 		//Item_Grab > When DebugParams.AutoGrabClosestItem is TRUE, the Item_Grab function returns the closest item in range
+// 		//Keep in mind that DebugParams are only used for debugging purposes, by default this flag is FALSE
+// 		//Otherwise, use GetEntitiesInFOV() to retrieve a vector of all entities in the FOV (EntityInfo)
+// 		//Item_Grab gives you the ItemInfo back, based on the passed EntityHash (retrieved by GetEntitiesInFOV)
+// 		if (m_pInterface->GrabNearestItem(item))
+// 		{
+// 			//Once grabbed, you can add it to a specific inventory slot
+// 			//Slot must be empty
+// 			Inventory_AddItem(m_InventorySlot, item);
+// 		}
+// 	}
+// 
+// 	if (m_UseItem)
+// 	{
+// 		//Use an item (make sure there is an item at the given inventory slot)
+// 		m_pInterface->Inventory_UseItem(m_InventorySlot);
+// 	}
+// 
+// 	if (m_RemoveItem)
+// 	{
+// 		//Remove an item from a inventory slot
+// 		Inventory_RemoveItem(m_InventorySlot);
+// 	}
+// 
+// 	if (m_DestroyItemsInFOV)
+// 	{
+// 		for (auto& item : vItemsInFOV)
+// 		{
+// 			m_pInterface->DestroyItem(item);
+// 		}
+// 	}
 
 	//Simple Seek Behaviour (towards Target)
 	steering.LinearVelocity = nextTargetPos - agentInfo.Position; //Desired Velocity
@@ -337,6 +369,7 @@ void SurvivalAgentPlugin::InitializeGoals()
 	m_Goals.emplace(HAS_FOOD_PARAM, 10.0f);
 	m_Goals.emplace(HAS_MEDKIT_PARAM, 10.0f);
 	m_Goals.emplace(FILL_INVENTORY_SPACE_PARAM, 5.0f);
+	m_Goals.emplace(FLEE_FROM_ENEMY_PARAM, 2.0f);
 	m_Goals.emplace(EXPLORE_PARAM, 1.0f);
 }
 
@@ -353,6 +386,7 @@ void SurvivalAgentPlugin::InitializeAvailableActions()
 	m_AvailableActions.insert(new UseMedkitAction());
 	m_AvailableActions.insert(new ExploreAction());
 	m_AvailableActions.insert(new SearchHouseAction());
+	m_AvailableActions.insert(new FleeFromEnemyAction());
 }
 
 UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const
@@ -366,6 +400,12 @@ UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const
 	}
 
 	return INVALID_INVENTORY_SLOT;
+}
+
+void SurvivalAgentPlugin::AbortCurrentPlan()
+{
+	m_Destination = m_LastPosition;
+	m_CurrentPlan = std::queue<const GOAPAction*>();
 }
 
 IPluginBase* Register()

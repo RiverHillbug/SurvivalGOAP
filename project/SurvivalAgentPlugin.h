@@ -53,6 +53,7 @@ private:
 	void InitializeGoals();
 	void InitializeAvailableActions();
 	UINT GetFirstAvailableInventorySpace() const;
+	void AbortCurrentPlan();
 
 	//Interface, used to request data from/perform actions with the AI Framework
 	class IExamInterface* m_pInterface{ nullptr };
@@ -74,8 +75,13 @@ private:
 
 	Elite::FiniteStateMachine m_FSM{};
 	Elite::Blackboard m_Blackboard{};
+	WorldState m_PreviousWorldState{};
 	std::set<const class GOAPAction*> m_AvailableActions{};
 	std::queue<const class GOAPAction*> m_CurrentPlan{};
+
+	Elite::Vector2 m_LastPosition;
+	const float m_StuckDurationThreshold{ 3.0f };
+	float m_CurrentStuckDuration{ 0.0f };
 };
 
 //ENTRY

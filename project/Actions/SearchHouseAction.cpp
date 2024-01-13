@@ -33,9 +33,23 @@ bool SearchHouseAction::Perform(Elite::Blackboard* pBlackboard) const
 
 void SearchHouseAction::OnExit(Elite::Blackboard* pBlackboard) const
 {
-	pBlackboard->RemoveData(TARGET_HOUSE_PARAM);
-
 	ExploreAction::OnExit(pBlackboard);
+
+	HouseInfo targetHouse;
+	if (!pBlackboard->GetData(TARGET_HOUSE_PARAM, targetHouse))
+		return;
+
+	// Mark the house as searched only if we finished the action through normal means
+	if (IsDone(pBlackboard))
+	{
+		std::unordered_set<HouseInfo> searchedHouses;
+		pBlackboard->GetData(SEARCHED_HOUSES_PARAM, searchedHouses);
+
+		searchedHouses.insert(targetHouse);
+		pBlackboard->SetData(SEARCHED_HOUSES_PARAM, searchedHouses);
+	}
+
+	pBlackboard->RemoveData(TARGET_HOUSE_PARAM);
 }
 
 bool SearchHouseAction::IsDone(const Elite::Blackboard* pBlackboard) const
@@ -83,7 +97,5 @@ void SearchHouseAction::SelectTargetHouse(Elite::Blackboard* pBlackboard) const
 	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
 	const HouseInfo closestHouse{ Helpers::GetClosestFromPosition<HouseInfo>(housesInFOV, agentLocation, [](const HouseInfo& house) { return house.Center; }) };
 
-	searchedHouses.insert(closestHouse);
-	pBlackboard->SetData(SEARCHED_HOUSES_PARAM, searchedHouses);
 	pBlackboard->SetData(TARGET_HOUSE_PARAM, closestHouse);
 }
