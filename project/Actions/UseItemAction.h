@@ -21,6 +21,7 @@ public:
 
 	virtual void FaceTarget(class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard) const {}
 	virtual bool HasTarget(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const { return false; }
+	virtual bool CanUseItem(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const { return true; }
 
 protected:
 	bool m_NeedsToFaceTarget{ false };

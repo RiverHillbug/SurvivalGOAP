@@ -29,10 +29,43 @@ void UseWeaponAction::FaceTarget(SurvivalAgentPlugin* pAgent, Elite::Blackboard*
 	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
 	const EnemyInfo closestEnemy{ Helpers::GetClosestFromPosition<EnemyInfo>(enemies, agentLocation, [](const EnemyInfo& enemy) { return enemy.Location; }) };
 
-	pAgent->SetDestination(closestEnemy.Location);
+	const float currentOrientation{ pAgent->GetInterface()->Agent_GetInfo().Orientation };
+	const Elite::Vector2 agentToEnemy{ closestEnemy.Location - agentLocation };
+	const float enemyOrientation{ Elite::VectorToOrientation(agentToEnemy) };
+	const float angleBetween{ enemyOrientation - currentOrientation };
+	pBlackboard->SetData(ANGLE_BETWEEN_AGENT_AND_CLOSEST_ENEMY_PARAM, angleBetween);
+
+	const float angularSpeed{ angleBetween > 0.0f ? float(E_PI) : float(-E_PI) };
+	pAgent->SetAngularSpeed(angularSpeed);
+
+	pAgent->SetDestination(agentToEnemy.GetNormalized() * -m_FleeDistance);
 }
 
 bool UseWeaponAction::HasTarget(const SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const
 {
 	return pAgent->GetInterface()->FOV_GetStats().NumEnemies > 0;
+}
+
+bool UseWeaponAction::CanUseItem(const SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const
+{
+	float angle;
+	return pBlackboard->GetData(ANGLE_BETWEEN_AGENT_AND_CLOSEST_ENEMY_PARAM, angle) && abs(angle) <= m_FacingAngleRadians;
+}
+
+void UseWeaponAction::OnStart(Elite::Blackboard* pBlackboard) const
+{
+	if (SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
+	{
+		pAgent->SetAutoOrient(false);
+	}
+}
+
+void UseWeaponAction::OnExit(Elite::Blackboard* pBlackboard) const
+{
+	UseItemAction::OnExit(pBlackboard);
+
+	if (SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
+	{
+		pAgent->SetAutoOrient(true);
+	}
 }

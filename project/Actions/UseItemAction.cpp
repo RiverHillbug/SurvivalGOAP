@@ -34,6 +34,9 @@ bool UseItemAction::Perform(Elite::Blackboard* pBlackboard) const
 		FaceTarget(pAgent, pBlackboard);
 	}
 
+	if (!CanUseItem(pAgent, pBlackboard))
+		return true;
+
 	const UINT itemSlot{ usedSlots.back() };
 
 	if (!pAgent->GetInterface()->Inventory_UseItem(itemSlot))
@@ -43,6 +46,7 @@ bool UseItemAction::Perform(Elite::Blackboard* pBlackboard) const
 	if (!pAgent->GetInterface()->Inventory_GetItem(itemSlot, itemInfo))
 		return false;
 
+	// If the item is used up we remove it from the used slots and the inventory
 	if (itemInfo.Value == 0)
 	{
 		pAgent->GetInterface()->Inventory_RemoveItem(itemSlot);

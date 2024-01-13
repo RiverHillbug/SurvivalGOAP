@@ -4,6 +4,8 @@
 
 static const std::string AGENT_PARAM{ "Agent" };
 
+static const std::string ANGLE_BETWEEN_AGENT_AND_CLOSEST_ENEMY_PARAM{ "AngleBetweenAgentAndEnemy" };
+
 static const std::string TARGET_ITEM_PARAM{ "ItemToGrab" };
 static const std::string TARGET_HOUSE_PARAM{ "TargetHouse" };
 static const std::string WEAPON_SLOTS_PARAM{ "WeaponSlots" };

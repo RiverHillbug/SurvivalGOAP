@@ -11,4 +11,12 @@ public:
 
 	void FaceTarget(class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard) const override;
 	bool HasTarget(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const override;
+	bool CanUseItem(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const override;
+
+
+	void OnStart(Elite::Blackboard* pBlackboard) const override;
+	void OnExit(Elite::Blackboard* pBlackboard) const override;
+
+private:
+	const float m_FacingAngleRadians{ 2.0f * (float(E_PI) / 180.0f) };
 };

@@ -38,7 +38,7 @@ void MoveToState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
 	const std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
 
 	Elite::Vector2 destination;
-	if (plan.front() && plan.front()->TryGetDestination(pBlackboard, destination))
+	if (!plan.empty() && plan.front()->TryGetDestination(pBlackboard, destination))
 	{
 		pAgent->SetDestination(destination);
 	}
@@ -69,7 +69,7 @@ void PerformActionState::Update(Elite::Blackboard* pBlackboard, float deltaTime)
 		return;
 
 	std::queue<const GOAPAction*>& plan{ pAgent->GetPlan() };
-	if (!plan.front()->Perform(pBlackboard))
+	if (!plan.empty() && !plan.front()->Perform(pBlackboard))
 	{
 		plan.front()->OnExit(pBlackboard);
 

@@ -172,7 +172,7 @@ float GOAPPlanner::GetGoalsFulfilledPercentage(const WorldState& currentWorldSta
 
 	// Is approximately equal to 100
 	const float floatEqualityTolerance{ 0.1f };
-	if (std::abs(goalsFulfilledPercentage - 100.0f) <= floatEqualityTolerance)
+	if (Helpers::IsNearlyEqual(goalsFulfilledPercentage, 100.0f, floatEqualityTolerance))
 	{
 		goalsFulfilledPercentage = 100.0f;
 	}
