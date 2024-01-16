@@ -51,10 +51,9 @@ bool GrabItemAction::Perform(Elite::Blackboard* pBlackboard) const
 		return false;
 	}
 
-	if (!pAgent->GetInterface()->GrabItem(targetItem))
-		return false;
+	FaceTarget(pAgent, pBlackboard);
 
-	if (!pAgent->Inventory_AddItem(slot, targetItem))
+	if (!GrabItem(pAgent, slot, targetItem))
 		return false;
 
 	const std::string& itemTypeSlotParam{ GetItemTypeSlotParam() };
@@ -77,4 +76,26 @@ bool GrabItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
 	std::vector<UINT> usedSlots;
 	return pBlackboard->GetData(GetItemTypeSlotParam(), usedSlots) &&
 		std::ranges::find(usedSlots, pAgent->GetSelectedInventorySlot()) != usedSlots.end();
+}
+
+bool GrabItemAction::GrabItem(SurvivalAgentPlugin* pAgent, const UINT slot, const ItemInfo& item) const
+{
+	// If we fail to grab, it's not an error, we'll just keep trying until we face it
+	if (!pAgent->GrabItem(item))
+		return true;
+
+	// If we did grab but couldn't add to inventory though, that's an error
+	return pAgent->Inventory_AddItem(slot, item);
+}
+
+void GrabItemAction::FaceTarget(SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard) const
+{
+	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
+	ItemInfo targetItem{};
+	pBlackboard->GetData(TARGET_ITEM_PARAM, targetItem);
+
+	const float angleBetween{ Helpers::GetAngleBetweenAgentAndEnemy(pAgent, targetItem.Location) };
+
+	const float angularSpeed{ angleBetween > 0.0f ? float(E_PI) : float(-E_PI) };
+	pAgent->SetAngularSpeed(angularSpeed);
 }

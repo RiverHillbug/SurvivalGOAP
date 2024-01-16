@@ -25,6 +25,7 @@
     <ClCompile Include="Actions\ExploreAction.cpp" />
     <ClCompile Include="Actions\SearchHouseAction.cpp" />
     <ClCompile Include="Actions\FleeFromEnemyAction.cpp" />
+    <ClCompile Include="Memory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SurvivalAgentPlugin.h" />
@@ -53,5 +54,6 @@
     <ClInclude Include="Actions\ExploreAction.h" />
     <ClInclude Include="Actions\SearchHouseAction.h" />
     <ClInclude Include="Actions\FleeFromEnemyAction.h" />
+    <ClInclude Include="Memory.h" />
   </ItemGroup>
 </Project>

@@ -19,4 +19,10 @@ public:
 	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 
 	virtual const std::string& GetItemTypeSlotParam() const = 0;
+
+protected:
+	virtual bool GrabItem(SurvivalAgentPlugin* pAgent, const UINT slot, const struct ItemInfo& item) const;
+
+private:
+	void FaceTarget(class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard) const;
 };

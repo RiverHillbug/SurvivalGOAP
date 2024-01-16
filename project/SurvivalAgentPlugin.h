@@ -7,6 +7,7 @@
 #include "EliteAI/EliteDecisionMaking/EliteFiniteStateMachine/EFiniteStateMachine.h"
 #include <set>
 #include <unordered_map>
+#include "Memory.h"
 
 class SurvivalAgentPlugin : public IExamPlugin
 {
@@ -29,7 +30,8 @@ public:
 	UINT SelectFirstAvailableInventorySlot();
 	inline UINT GetSelectedInventorySlot() const { return m_InventorySlot; }
 
-	bool Inventory_AddItem(UINT slotId, ItemInfo item);
+	bool GrabItem(const ItemInfo& item);
+	bool Inventory_AddItem(UINT slotId, const ItemInfo& item);
 	bool Inventory_RemoveItem(UINT slotId);
 
 	inline const std::set<const class GOAPAction*>& GetAvailableActions() const { return m_AvailableActions; }
@@ -39,6 +41,9 @@ public:
 	void SetPlan(const std::queue<const class GOAPAction*>& plan);
 	inline std::queue<const class GOAPAction*>& GetPlan() { return m_CurrentPlan; }
 	inline const std::queue<const class GOAPAction*>& GetPlan() const { return m_CurrentPlan; }
+
+	inline Memory& GetMemory() { return m_Memory; }
+	inline const Memory& GetMemory() const { return m_Memory; }
 
 	inline void SetDestination(const Elite::Vector2& destination) { m_Destination = destination; }
 	inline const Elite::Vector2& GetDestination() const { return m_Destination; }
@@ -61,6 +66,8 @@ private:
 
 	GOAPPlanner m_GOAPPlanner{};
 	Goals m_Goals{};
+
+	Memory m_Memory{};
 
 	Elite::Vector2 m_Destination{};
 	bool m_CanRun{ false }; //Demo purpose

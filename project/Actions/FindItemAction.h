@@ -1,5 +1,6 @@
 #pragma once
 #include "GOAPAction.h"
+#include <Exam_HelperStructs.h>
 
 namespace Elite
 {
@@ -15,5 +16,5 @@ public:
 	bool Perform(Elite::Blackboard* pBlackboard) const override;
 	bool IsDone(const Elite::Blackboard* pBlackboard) const override;
 
-	virtual bool IsCorrectItemType(const struct ItemInfo& item) const = 0;
+	virtual eItemType GetItemType() const = 0;
 };

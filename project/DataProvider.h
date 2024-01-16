@@ -13,11 +13,9 @@ typedef std::unordered_map<std::string, float /*priority*/> Goals;
 class DataProvider
 {
 public:
-	static WorldState GetWorldState(Elite::Blackboard* pBlackboard);
+	static WorldState GetWorldState(Elite::Blackboard* pBlackboard, const class Memory& memory);
 
 private:
-	static void CheckHouses(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
-	static void CheckItems(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
 	static void CheckStats(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
 	static void CheckInventory(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState);
 

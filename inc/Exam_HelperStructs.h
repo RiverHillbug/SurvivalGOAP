@@ -57,9 +57,10 @@ enum class eEntityType
 	ITEM,
 	ENEMY,
 	PURGEZONE,
+	HOUSE,
 
 	//@END
-	_LAST = PURGEZONE
+	_LAST = HOUSE
 };
 
 enum class eItemType
@@ -118,8 +119,8 @@ struct FOVStats
 	{
 		return	NumHouses != other.NumHouses ||
 				NumEnemies != other.NumEnemies ||
-				NumItems != other.NumItems/* ||
-				NumPurgeZones != other.NumPurgeZones*/;	// Ignore purge zones for now, since we don't use them yet for planning
+				NumItems != other.NumItems ||
+				NumPurgeZones != other.NumPurgeZones;
 	}
 };
 
@@ -140,23 +141,6 @@ struct HouseInfo
 	}
 };
 
-namespace std
-{
-	// Idek, thanks stack overflow
-
-	template <>
-	struct hash<HouseInfo>
-	{
-		auto operator()(const HouseInfo& house) const -> size_t
-		{
-			std::stringstream hashStr;
-			hashStr << house.Center << house.Size;
-
-			return hash<string>()(hashStr.str());
-		}
-	};
-}
-
 struct EnemyInfo
 {
 	eEnemyType Type{ eEnemyType::DEFAULT };
@@ -166,6 +150,16 @@ struct EnemyInfo
 	int EnemyHash{ 0 };
 	float Size{ 0.0f };
 	float Health{ 0.0f };
+
+	bool operator!=(const EnemyInfo& other) const
+	{
+		return EnemyHash != other.EnemyHash;
+	}
+
+	bool operator==(const EnemyInfo& other) const
+	{
+		return EnemyHash == other.EnemyHash;
+	}
 };
 
 struct ItemInfo
@@ -175,6 +169,16 @@ struct ItemInfo
 
 	int ItemHash{ 0 };
 	int Value{ 0 };
+
+	bool operator!=(const ItemInfo& other) const
+	{
+		return ItemHash != other.ItemHash;
+	}
+
+	bool operator==(const ItemInfo& other) const
+	{
+		return ItemHash == other.ItemHash;
+	}
 };
 
 struct PurgeZoneInfo
@@ -183,14 +187,35 @@ struct PurgeZoneInfo
 	float Radius{ 0.0f };
 
 	int ZoneHash{ 0 };
+
+	bool operator!=(const PurgeZoneInfo& other) const
+	{
+		return ZoneHash != other.ZoneHash;
+	}
+
+	bool operator==(const PurgeZoneInfo& other) const
+	{
+		return ZoneHash == other.ZoneHash;
+	}
 };
 
 struct EntityInfo
 {
 	eEntityType Type{ eEntityType::ITEM };
+	eItemType ItemType;
 	Elite::Vector2 Location{};
 
 	int EntityHash{ 0 };
+
+	bool operator!=(const EntityInfo& other) const
+	{
+		return EntityHash != other.EntityHash;
+	}
+
+	bool operator==(const EntityInfo& other) const
+	{
+		return EntityHash == other.EntityHash;
+	}
 };
 
 struct WorldInfo
@@ -223,4 +248,30 @@ struct AgentInfo
 	float GrabRange{ 0.0f };
 	float AgentSize{ 0.0f };
 };
+
+namespace std
+{
+	// Idek, thanks stack overflow
+
+	template <>
+	struct hash<HouseInfo>
+	{
+		auto operator()(const HouseInfo& house) const -> size_t
+		{
+			std::stringstream hashStr;
+			hashStr << house.Center << house.Size;
+
+			return hash<string>()(hashStr.str());
+		}
+	};
+
+	template <>
+	struct hash<EntityInfo>
+	{
+		auto operator()(const EntityInfo& entity) const -> size_t
+		{
+			return entity.EntityHash;
+		}
+	};
+}
 #pragma endregion

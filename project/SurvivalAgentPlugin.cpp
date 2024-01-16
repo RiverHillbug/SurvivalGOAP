@@ -43,7 +43,7 @@ void SurvivalAgentPlugin::Initialize(IBaseInterface* pInterface, PluginInfo& inf
 //Called only once
 void SurvivalAgentPlugin::DllInit()
 {
-	//Called when the plugin is loaded
+	
 }
 
 //Called only once
@@ -64,8 +64,8 @@ void SurvivalAgentPlugin::InitGameDebugParams(GameDebugParams& params)
 	params.AutoGrabClosestItem = true; //A call to Item_Grab(...) returns the closest item that can be grabbed. (EntityInfo argument is ignored)
 	params.StartingDifficultyStage = 1;
 	params.InfiniteStamina = false;
-	params.SpawnDebugPistol = true;
-	params.SpawnDebugShotgun = true;
+	params.SpawnDebugPistol = false;
+	params.SpawnDebugShotgun = false;
 	params.SpawnPurgeZonesOnMiddleClick = true;
 	params.PrintDebugMessages = true;
 	params.ShowDebugItemNames = true;
@@ -74,7 +74,7 @@ void SurvivalAgentPlugin::InitGameDebugParams(GameDebugParams& params)
 
 //Only Active in DEBUG Mode
 //(=Use only for Debug Purposes)
-void SurvivalAgentPlugin::Update_Debug(float dt)
+void SurvivalAgentPlugin::Update_Debug(float deltaTime)
 {
 	//Demo Event Code
 
@@ -141,11 +141,12 @@ void SurvivalAgentPlugin::Update_Debug(float dt)
 }
 
 //This function calculates the new SteeringOutput, called once per frame
-SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
+SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float deltaTime)
 {
 	auto steering = SteeringPlugin_Output();
 
-	const WorldState currentWorldState{ DataProvider::GetWorldState(&m_Blackboard) };
+	m_Memory.Update(deltaTime, this);
+	const WorldState currentWorldState{ DataProvider::GetWorldState(&m_Blackboard, m_Memory) };
 
 	if (!m_CurrentPlan.empty() && Helpers::ShouldConsiderNewPlan(currentWorldState, m_PreviousWorldState))
 	{
@@ -157,7 +158,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 
 	m_PreviousWorldState = currentWorldState;
 
-	m_FSM.Update(dt);
+	m_FSM.Update(deltaTime);
 
 	//Use the Interface (IAssignmentInterface) to 'interface' with the AI_Framework
 	auto agentInfo = m_pInterface->Agent_GetInfo();
@@ -188,63 +189,7 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 	//OR, Use the mouse target
 	auto nextTargetPos = m_pInterface->NavMesh_GetClosestPathPoint(m_Destination);
 
-	//FOV USAGE DEMO
-	//===============
 
-	//FOV stats = CHEAP! info about the FOV
-	/*FOVStats stats = m_pInterface->FOV_GetStats();*/
-
-	//FOV data (snapshot of the FOV of the current frame) = EXPENSIVE! returns a new vector for every call
-	/*auto vHousesInFOV = m_pInterface->GetHousesInFOV();
-	auto vEnemiesInFOV = m_pInterface->GetEnemiesInFOV();
-	auto vItemsInFOV = m_pInterface->GetItemsInFOV();
-	auto vPurgezonesInFOV = m_pInterface->GetPurgeZonesInFOV();*/
-
-	//for (auto& zoneInfo : vPurgezonesInFOV)
-	//{
-	//	std::cout << "Purge Zone in FOV:" << zoneInfo.Center.x << ", "<< zoneInfo.Center.y << "---Radius: "<< zoneInfo.Radius << std::endl;
-	//}
-
-	//for (auto& enemyInfo : vEnemiesInFOV)
-	//{
-	//	std::cout << "Enemy in FOV:" << enemyInfo.Location.x << ", " << enemyInfo.Location.y << "---Health: " << enemyInfo.Health << std::endl;
-	//}
-
-	//for (auto& item : vItemsInFOV)
-	//{
-	//	std::cout << "Item in FOV:" << item.Location.x << ", " << item.Location.y << "---Value: " << item.Value << std::endl;	
-	//}
-
-	//INVENTORY USAGE DEMO
-	//********************
-
-// 	if (m_GrabItem)
-// 	{
-// 		ItemInfo item;
-// 		//Item_Grab > When DebugParams.AutoGrabClosestItem is TRUE, the Item_Grab function returns the closest item in range
-// 		//Keep in mind that DebugParams are only used for debugging purposes, by default this flag is FALSE
-// 		//Otherwise, use GetEntitiesInFOV() to retrieve a vector of all entities in the FOV (EntityInfo)
-// 		//Item_Grab gives you the ItemInfo back, based on the passed EntityHash (retrieved by GetEntitiesInFOV)
-// 		if (m_pInterface->GrabNearestItem(item))
-// 		{
-// 			//Once grabbed, you can add it to a specific inventory slot
-// 			//Slot must be empty
-// 			Inventory_AddItem(m_InventorySlot, item);
-// 		}
-// 	}
-// 
-// 	if (m_UseItem)
-// 	{
-// 		//Use an item (make sure there is an item at the given inventory slot)
-// 		m_pInterface->Inventory_UseItem(m_InventorySlot);
-// 	}
-// 
-// 	if (m_RemoveItem)
-// 	{
-// 		//Remove an item from a inventory slot
-// 		Inventory_RemoveItem(m_InventorySlot);
-// 	}
-// 
 // 	if (m_DestroyItemsInFOV)
 // 	{
 // 		for (auto& item : vItemsInFOV)
@@ -267,10 +212,6 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float dt)
 
 	steering.AutoOrient = m_AutoOrient; //Setting AutoOrient to true overrides the AngularVelocity
 	steering.RunMode = m_CanRun; //If RunMode is True > MaxLinearSpeed is increased for a limited time (until your stamina runs out)
-
-	//SteeringPlugin_Output is works the exact same way a SteeringBehaviour output
-
-	//@End (Demo Purposes)
 
 	m_GrabItem = false; //Reset State
 	m_UseItem = false;
@@ -303,7 +244,18 @@ UINT SurvivalAgentPlugin::SelectFirstAvailableInventorySlot()
 	return slot;
 }
 
-bool SurvivalAgentPlugin::Inventory_AddItem(UINT slotId, ItemInfo item)
+bool SurvivalAgentPlugin::GrabItem(const ItemInfo& item)
+{
+	if (m_pInterface->GrabItem(item))
+	{
+		m_Memory.RemoveItem(item);
+		return true;
+	}
+
+	return false;
+}
+
+bool SurvivalAgentPlugin::Inventory_AddItem(UINT slotId, const ItemInfo& item)
 {
 	m_UsedInventorySlots[slotId] = true;
 	return m_pInterface->Inventory_AddItem(slotId, item);
@@ -338,7 +290,8 @@ bool SurvivalAgentPlugin::IsApproximatelyAt(const Elite::Vector2& position) cons
 	const AgentInfo& agentInfo{ m_pInterface->Agent_GetInfo() };
 
 	const float distanceToleranceSqd{ agentInfo.GrabRange * agentInfo.GrabRange };
-	return DistanceSquared(position, agentInfo.Position) <= distanceToleranceSqd;
+	const float distSqrd{ DistanceSquared(position, agentInfo.Position) };
+	return distSqrd <= distanceToleranceSqd;
 }
 
 void SurvivalAgentPlugin::InitializeFSM()
@@ -370,7 +323,7 @@ void SurvivalAgentPlugin::InitializeFSM()
 void SurvivalAgentPlugin::InitializeGoals()
 {
 	m_Goals.emplace(KILL_ENEMY_PARAM, 90.0f);
-	m_Goals.emplace(HAS_HIGH_ENERGY_PARAM, 60.0f);
+	m_Goals.emplace(HAS_HIGH_ENERGY_PARAM, 70.0f);
 	m_Goals.emplace(HAS_HIGH_HEALTH_PARAM, 60.0f);
 	m_Goals.emplace(HAS_WEAPON_PARAM, 25.0f);
 	m_Goals.emplace(HAS_FOOD_PARAM, 10.0f);
@@ -391,8 +344,8 @@ void SurvivalAgentPlugin::InitializeAvailableActions()
 	m_AvailableActions.insert(new UseWeaponAction());
 	m_AvailableActions.insert(new UseFoodAction());
 	m_AvailableActions.insert(new UseMedkitAction());
-	m_AvailableActions.insert(new ExploreAction());
-	m_AvailableActions.insert(new SearchHouseAction());
+	m_AvailableActions.insert(new ExploreAction(m_pInterface->World_GetInfo()));
+	m_AvailableActions.insert(new SearchHouseAction(m_pInterface->World_GetInfo()));
 	m_AvailableActions.insert(new FleeFromEnemyAction());
 }
 

@@ -23,24 +23,15 @@ bool FindItemAction::Perform(Elite::Blackboard* pBlackboard) const
 	if (pAgent == nullptr)
 		return false;
 
-	const std::vector<ItemInfo> allItemsInFOV{ pAgent->GetInterface()->GetItemsInFOV() };
-	std::vector<ItemInfo> correctItemsInFOV{};
-
-	// Copy all items that are of the correct type from allItemsInFOV into correctItemsInFOV
-	std::ranges::copy_if(allItemsInFOV, std::back_inserter(correctItemsInFOV),
-		[this](const ItemInfo& item)
-		{
-			return IsCorrectItemType(item);
-		});
-
-	if (correctItemsInFOV.empty())
+	const std::vector<ItemInfo> items{ pAgent->GetMemory().GetAppropriateItemsVector(GetItemType()) };
+	if (items.empty())
 	{
-		std::cout << "No correct item in sight!\n";
+		std::cout << "No appropriate items in memory!\n";
 		return false;
 	}
 
 	const Elite::Vector2 agentLocation{ pAgent->GetInterface()->Agent_GetInfo().Position };
-	const ItemInfo closestItem{ Helpers::GetClosestFromPosition<ItemInfo>(correctItemsInFOV, agentLocation, [](const ItemInfo& item) { return item.Location; }) };
+	const ItemInfo closestItem{ Helpers::GetClosestFromPosition<ItemInfo>(items, agentLocation, [](const ItemInfo& item) { return item.Location; }) };
 
 	pBlackboard->SetData(TARGET_ITEM_PARAM, closestItem);
 	return true;

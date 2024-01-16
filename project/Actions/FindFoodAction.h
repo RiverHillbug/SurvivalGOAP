@@ -7,5 +7,5 @@ public:
 	FindFoodAction();
 	~FindFoodAction() = default;
 
-	bool IsCorrectItemType(const struct ItemInfo& item) const override;
+	eItemType GetItemType() const override { return eItemType::FOOD; }
 };

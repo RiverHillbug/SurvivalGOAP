@@ -7,6 +7,7 @@ public:
 	FleeFromEnemyAction();
 	~FleeFromEnemyAction() = default;
 
+	void OnStart(Elite::Blackboard* pBlackboard) const override;
 	bool Perform(Elite::Blackboard* pBlackboard) const override;
 	void OnExit(Elite::Blackboard* pBlackboard) const override;
 

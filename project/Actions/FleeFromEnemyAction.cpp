@@ -8,10 +8,22 @@
 
 FleeFromEnemyAction::FleeFromEnemyAction()
 {
-	AddPrecondition(HAS_ENEMY_IN_SIGHT_PARAM, true);
+	AddPrecondition(HAS_ENEMY_IN_MEMORY_PARAM, true);
 	AddPrecondition(HAS_WEAPON_PARAM, false);
 
 	AddPlanOnlyEffect(FLEE_FROM_ENEMY_PARAM, true);
+
+	m_Cost = 8;
+}
+
+void FleeFromEnemyAction::OnStart(Elite::Blackboard* pBlackboard) const
+{
+	if (SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
+	{
+		pAgent->SetAngularSpeed(float(E_PI));
+		pAgent->SetAutoOrient(false);
+		pAgent->SetDestination(pAgent->GetInterface()->Agent_GetInfo().Position);
+	}
 }
 
 bool FleeFromEnemyAction::Perform(Elite::Blackboard* pBlackboard) const
@@ -29,7 +41,10 @@ bool FleeFromEnemyAction::Perform(Elite::Blackboard* pBlackboard) const
 		pAgent->SetCanRun(false);
 	}
 
-	const std::vector<EnemyInfo> enemies{ pAgent->GetInterface()->GetEnemiesInFOV() };
+	if (!pAgent->IsApproximatelyAt(pAgent->GetDestination()) && !pAgent->GetMemory().HasSeenAnyNew(eEntityType::ENEMY))
+		return true;
+
+	const std::vector<EnemyInfo> enemies{ pAgent->GetMemory().GetEnemiesInMemory() };
 	if (enemies.empty())
 		return true;
 
@@ -37,29 +52,30 @@ bool FleeFromEnemyAction::Perform(Elite::Blackboard* pBlackboard) const
 	const EnemyInfo closestEnemy{ Helpers::GetClosestFromPosition<EnemyInfo>(enemies, agentLocation, [](const EnemyInfo& enemy) { return enemy.Location; }) };
 
 	const Elite::Vector2 agentToEnemy{ closestEnemy.Location - agentLocation };
-	pAgent->SetDestination(agentToEnemy.GetNormalized() * -m_FleeDistance);
+	const Elite::Vector2 fleeDestination{ agentToEnemy.GetNormalized() * -m_FleeDistance };
+	pAgent->SetDestination(agentLocation + fleeDestination);
 
 	return true;
 }
 
 bool FleeFromEnemyAction::IsDone(const Elite::Blackboard* pBlackboard) const
 {
-	if (pBlackboard->GetBoolData(HAS_WEAPON_IN_SIGHT_PARAM) ||
-		pBlackboard->GetBoolData(HAS_HOUSE_IN_SIGHT_PARAM))
-	{
+	if (pBlackboard->GetBoolData(HAS_WEAPON_IN_MEMORY_PARAM) ||
+		!pBlackboard->GetBoolData(HAS_ENEMY_IN_MEMORY_PARAM))
 		return true;
-	}
 
-	if (const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
-		return pAgent->IsApproximatelyAt(pAgent->GetDestination());
+	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
+	if (pAgent == nullptr)
+		return true;
 
-	return true;
+	return pAgent->GetMemory().HasSeenAnyNew(eEntityType::HOUSE);
 }
 
 void FleeFromEnemyAction::OnExit(Elite::Blackboard* pBlackboard) const
 {
-	if (SurvivalAgentPlugin * pAgent{ Helpers::GetAgent(pBlackboard) })
+	if (SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) })
 	{
 		pAgent->SetCanRun(false);
+		pAgent->SetAutoOrient(true);
 	}
 }

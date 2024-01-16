@@ -47,7 +47,7 @@ void MoveToState::Update(Elite::Blackboard* pBlackboard, float deltaTime) const
 bool MoveToState::IsDone(const Elite::Blackboard* pBlackboard) const
 {
 	const SurvivalAgentPlugin* pAgent{ Helpers::GetAgent(pBlackboard) };
-	return pAgent != nullptr && pAgent->IsApproximatelyAt(pAgent->GetDestination());
+	return pAgent != nullptr && (pAgent->GetPlan().empty() || pAgent->IsApproximatelyAt(pAgent->GetDestination()));
 }
 
 //----------------------------------------------------------

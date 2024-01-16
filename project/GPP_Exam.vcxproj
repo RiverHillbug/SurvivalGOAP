@@ -209,6 +209,7 @@
     <ClInclude Include="Actions\GrabWeaponAction.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="Actions\SearchHouseAction.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="SurvivalAgentPlugin.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Actions\UseFoodAction.h" />
@@ -235,6 +236,7 @@
     <ClCompile Include="Actions\GrabWeaponAction.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="Actions\SearchHouseAction.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="SurvivalAgentPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

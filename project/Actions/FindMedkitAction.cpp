@@ -6,13 +6,8 @@
 FindMedkitAction::FindMedkitAction()
 	: FindItemAction()
 {
-	AddPrecondition(HAS_MEDKIT_IN_SIGHT_PARAM, true);
+	AddPrecondition(HAS_MEDKIT_IN_MEMORY_PARAM, true);
 	AddPrecondition(HAS_TARGET_MEDKIT_PARAM, false);
 
 	AddPlanOnlyEffect(HAS_TARGET_MEDKIT_PARAM, true);
-}
-
-bool FindMedkitAction::IsCorrectItemType(const ItemInfo& item) const
-{
-	return item.Type == eItemType::MEDKIT;
 }

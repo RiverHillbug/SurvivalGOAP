@@ -7,5 +7,5 @@ public:
 	FindMedkitAction();
 	~FindMedkitAction() = default;
 
-	bool IsCorrectItemType(const struct ItemInfo& item) const override;
+	eItemType GetItemType() const override { return eItemType::MEDKIT; }
 };

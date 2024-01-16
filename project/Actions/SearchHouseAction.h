@@ -10,7 +10,7 @@ namespace Elite
 class SearchHouseAction : public ExploreAction
 {
 public:
-	SearchHouseAction();
+	SearchHouseAction(const struct WorldInfo& worldInfo);
 
 	void OnStart(Elite::Blackboard* pBlackboard) const override;
 	bool Perform(Elite::Blackboard* pBlackboard) const override;

@@ -45,10 +45,9 @@ std::queue<const GOAPAction*> GOAPPlanner::Plan(Elite::Blackboard* pBlackboard)
 	}
 
 	const Goals goals{ pAgent->GetGoals() };
-	const WorldState worldState{ DataProvider::GetWorldState(pBlackboard) };
+	const WorldState worldState{ DataProvider::GetWorldState(pBlackboard, pAgent->GetMemory()) };
 
 	std::vector<int> successfulNodeIndices{ };
-
 
 	const float fullGoalsCompletionValue{ GetFullGoalsCompletionValue(goals) };
 	const float initialGoalsFulfilledPercentage{ GetGoalsFulfilledPercentage(worldState, goals, fullGoalsCompletionValue) };
