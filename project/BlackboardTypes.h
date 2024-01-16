@@ -22,7 +22,7 @@ static const std::string HAS_ENEMY_IN_MEMORY_PARAM{ "HasEnemyInMemory" };
 static const std::string HAS_HOUSE_IN_MEMORY_PARAM{ "HasHouseInMemory" };
 static const std::string HAS_PURGE_ZONE_IN_MEMORY_PARAM{ "HasPurgeZoneInMemory" }; // flee
 
-static const std::string IS_IN_PURGE_ZONE_PARAM{ "IsInPurgeZone" }; // flee
+static const std::string IS_NOT_IN_PURGE_ZONE_PARAM{ "IsNotInPurgeZone" };
 
 static const std::string HAS_TARGET_WEAPON_PARAM{ "HasTargetWeapon" };
 static const std::string HAS_TARGET_FOOD_PARAM{ "HasTargetFood" };

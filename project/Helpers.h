@@ -49,4 +49,6 @@ namespace Helpers
 	}
 
 	void ExcludeSearchedHouses(OUT std::vector<HouseInfo>& houses, const std::unordered_set<HouseInfo>& searchedHouses);
+
+	bool IsAgentInPurgeZone(const Elite::Blackboard* pBlackboard);
 }

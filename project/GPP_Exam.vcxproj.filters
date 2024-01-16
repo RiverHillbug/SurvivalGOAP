@@ -26,6 +26,7 @@
     <ClCompile Include="Actions\SearchHouseAction.cpp" />
     <ClCompile Include="Actions\FleeFromEnemyAction.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="Actions\FleePurgeZoneAction.cpp" />
     <ClCompile Include="Actions\DestroyGarbageAction.cpp" />
     <ClCompile Include="Actions\FindGarbageAction.cpp" />
   </ItemGroup>
@@ -57,6 +58,7 @@
     <ClInclude Include="Actions\SearchHouseAction.h" />
     <ClInclude Include="Actions\FleeFromEnemyAction.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="Actions\FleePurgeZoneAction.h" />
     <ClInclude Include="Actions\DestroyGarbageAction.h" />
     <ClInclude Include="Actions\FindGarbageAction.h" />
   </ItemGroup>

@@ -61,6 +61,22 @@ void Helpers::ExcludeSearchedHouses(OUT std::vector<HouseInfo>& houses, const st
 		}).begin(), houses.end());
 }
 
+bool Helpers::IsAgentInPurgeZone(const Elite::Blackboard* pBlackboard)
+{
+	const Elite::Vector2 agentPosition{ GetAgent(pBlackboard)->GetInterface()->Agent_GetInfo().Position };
+
+	for (const auto& purgeZone : GetAgent(pBlackboard)->GetMemory().GetPurgeZonesInMemory())
+	{
+		if (agentPosition.x < purgeZone.Center.x + purgeZone.Radius ||
+			agentPosition.x > purgeZone.Center.x - purgeZone.Radius ||
+			agentPosition.y < purgeZone.Center.y + purgeZone.Radius ||
+			agentPosition.y > purgeZone.Center.y - purgeZone.Radius)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void Helpers::ApplyState(const WorldState& stateToApply, OUT Elite::Blackboard* pBlackboard)

@@ -336,6 +336,7 @@ void SurvivalAgentPlugin::InitializeFSM()
 
 void SurvivalAgentPlugin::InitializeGoals()
 {
+	m_Goals.emplace(IS_NOT_IN_PURGE_ZONE_PARAM, 150.0f);
 	m_Goals.emplace(KILL_ENEMY_PARAM, 90.0f);
 	m_Goals.emplace(HAS_HIGH_ENERGY_PARAM, 70.0f);
 	m_Goals.emplace(HAS_HIGH_HEALTH_PARAM, 60.0f);
@@ -365,6 +366,7 @@ void SurvivalAgentPlugin::InitializeAvailableActions()
 	m_AvailableActions.insert(new ExploreAction(m_pInterface->World_GetInfo()));
 	m_AvailableActions.insert(new SearchHouseAction(m_pInterface->World_GetInfo()));
 	m_AvailableActions.insert(new FleeFromEnemyAction());
+	m_AvailableActions.insert(new FleePurgeZoneAction());
 }
 
 UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const

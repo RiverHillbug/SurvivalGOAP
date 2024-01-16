@@ -46,6 +46,8 @@ void DataProvider::CheckStats(const class SurvivalAgentPlugin* pAgent, Elite::Bl
 
 	const float lowStaminaThreshold{ 2.0f };
 	EnterData(HAS_LOW_STAMINA_PARAM, agentInfo.Stamina < lowStaminaThreshold, pBlackboard, worldState);
+
+	EnterData(IS_NOT_IN_PURGE_ZONE_PARAM, !Helpers::IsAgentInPurgeZone(pBlackboard), pBlackboard, worldState);
 }
 
 void DataProvider::CheckInventory(const class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard, OUT WorldState& worldState)

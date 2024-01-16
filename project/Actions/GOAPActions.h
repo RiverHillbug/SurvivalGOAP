@@ -13,3 +13,4 @@
 #include "ExploreAction.h"
 #include "SearchHouseAction.h"
 #include "FleeFromEnemyAction.h"
+#include "FleePurgeZoneAction.h"
