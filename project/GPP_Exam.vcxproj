@@ -193,6 +193,7 @@
     <ClInclude Include="Actions\GOAPActions.h" />
     <ClInclude Include="BlackboardTypes.h" />
     <ClInclude Include="DecisionMaking\FiniteStateMachines\GOAPStates.h" />
+    <ClInclude Include="Actions\DestroyGarbageAction.h" />
     <ClInclude Include="EliteAI\EliteData\EBlackboard.h" />
     <ClInclude Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.h" />
     <ClInclude Include="Actions\FindWeaponAction.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Actions\FindFoodAction.h" />
     <ClInclude Include="Actions\FindMedkitAction.h" />
     <ClInclude Include="Actions\FleeFromEnemyAction.h" />
+    <ClInclude Include="Actions\FindGarbageAction.h" />
     <ClInclude Include="GOAPPlanner.h" />
     <ClInclude Include="Actions\GrabFoodAction.h" />
     <ClInclude Include="Actions\GrabItemAction.h" />
@@ -220,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DecisionMaking\FiniteStateMachines\GOAPStates.cpp" />
+    <ClCompile Include="Actions\DestroyGarbageAction.cpp" />
     <ClCompile Include="EBlackboard.cpp" />
     <ClCompile Include="EliteAI\EliteDecisionMaking\EliteFiniteStateMachine\EFiniteStateMachine.cpp" />
     <ClCompile Include="Actions\FindWeaponAction.cpp" />
@@ -229,6 +232,7 @@
     <ClCompile Include="Actions\FindFoodAction.cpp" />
     <ClCompile Include="Actions\FindMedkitAction.cpp" />
     <ClCompile Include="Actions\FleeFromEnemyAction.cpp" />
+    <ClCompile Include="Actions\FindGarbageAction.cpp" />
     <ClCompile Include="GOAPPlanner.cpp" />
     <ClCompile Include="Actions\GrabFoodAction.cpp" />
     <ClCompile Include="Actions\GrabItemAction.cpp" />

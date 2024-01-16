@@ -258,6 +258,17 @@ bool SurvivalAgentPlugin::GrabItem(const ItemInfo& item)
 	return false;
 }
 
+bool SurvivalAgentPlugin::DestroyItem(const ItemInfo& item)
+{
+	if (m_pInterface->DestroyItem(item))
+	{
+		m_Memory.RemoveItem(item);
+		return true;
+	}
+
+	return false;
+}
+
 bool SurvivalAgentPlugin::Inventory_AddItem(UINT slotId, const ItemInfo& item)
 {
 	m_UsedInventorySlots[slotId] = true;
@@ -332,6 +343,7 @@ void SurvivalAgentPlugin::InitializeGoals()
 	m_Goals.emplace(HAS_WEAPON_PARAM, 25.0f);
 	m_Goals.emplace(HAS_FOOD_PARAM, 10.0f);
 	m_Goals.emplace(HAS_MEDKIT_PARAM, 10.0f);
+	m_Goals.emplace(DESTROY_GARBAGE_PARAM, 8.0f);
 	m_Goals.emplace(FILL_INVENTORY_SPACE_PARAM, 5.0f);
 	m_Goals.emplace(FLEE_FROM_ENEMY_PARAM, 2.0f);
 	m_Goals.emplace(EXPLORE_PARAM, 1.0f);
@@ -342,9 +354,11 @@ void SurvivalAgentPlugin::InitializeAvailableActions()
 	m_AvailableActions.insert(new FindWeaponAction());
 	m_AvailableActions.insert(new FindFoodAction());
 	m_AvailableActions.insert(new FindMedkitAction());
+	m_AvailableActions.insert(new FindGarbageAction());
 	m_AvailableActions.insert(new GrabWeaponAction());
 	m_AvailableActions.insert(new GrabFoodAction());
 	m_AvailableActions.insert(new GrabMedkitAction());
+	m_AvailableActions.insert(new DestroyGarbageAction());
 	m_AvailableActions.insert(new UseWeaponAction());
 	m_AvailableActions.insert(new UseFoodAction());
 	m_AvailableActions.insert(new UseMedkitAction());

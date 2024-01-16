@@ -42,6 +42,8 @@ bool UseItemAction::Perform(Elite::Blackboard* pBlackboard) const
 	if (!pAgent->GetInterface()->Inventory_UseItem(itemSlot))
 		return false;
 
+	OnAfterUseItem(pAgent, pBlackboard);
+
 	ItemInfo itemInfo;
 	if (!pAgent->GetInterface()->Inventory_GetItem(itemSlot, itemInfo))
 		return false;

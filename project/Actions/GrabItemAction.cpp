@@ -57,6 +57,8 @@ bool GrabItemAction::Perform(Elite::Blackboard* pBlackboard) const
 		return false;
 
 	const std::string& itemTypeSlotParam{ GetItemTypeSlotParam() };
+	if (itemTypeSlotParam == NO_SLOTS_PARAM)
+		return true;
 
 	std::vector<UINT> usedSlots;
 	pBlackboard->GetData(itemTypeSlotParam, usedSlots);
@@ -73,8 +75,12 @@ bool GrabItemAction::IsDone(const Elite::Blackboard* pBlackboard) const
 	if (pAgent == nullptr)
 		return true;
 
+	const std::string& itemTypeSlotParam{ GetItemTypeSlotParam() };
+	if (itemTypeSlotParam == NO_SLOTS_PARAM)
+		return true;
+
 	std::vector<UINT> usedSlots;
-	return pBlackboard->GetData(GetItemTypeSlotParam(), usedSlots) &&
+	return pBlackboard->GetData(itemTypeSlotParam, usedSlots) &&
 		std::ranges::find(usedSlots, pAgent->GetSelectedInventorySlot()) != usedSlots.end();
 }
 

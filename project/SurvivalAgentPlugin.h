@@ -31,6 +31,7 @@ public:
 	inline UINT GetSelectedInventorySlot() const { return m_InventorySlot; }
 
 	bool GrabItem(const ItemInfo& item);
+	bool DestroyItem(const ItemInfo& item);
 	bool Inventory_AddItem(UINT slotId, const ItemInfo& item);
 	bool Inventory_RemoveItem(UINT slotId);
 

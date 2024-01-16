@@ -27,6 +27,7 @@ static const std::string IS_IN_PURGE_ZONE_PARAM{ "IsInPurgeZone" }; // flee
 static const std::string HAS_TARGET_WEAPON_PARAM{ "HasTargetWeapon" };
 static const std::string HAS_TARGET_FOOD_PARAM{ "HasTargetFood" };
 static const std::string HAS_TARGET_MEDKIT_PARAM{ "HasTargetMedkit" };
+static const std::string HAS_TARGET_GARBAGE_PARAM{ "HasTargetGarbage" };
 static const std::string HAS_TARGET_ENEMY_PARAM{ "HasTargetEnemy" };
 static const std::string HAS_WEAPON_PARAM{ "HasWeapon" };
 static const std::string HAS_MEDKIT_PARAM{ "HasMedkit" };
@@ -42,5 +43,6 @@ static const std::string HAS_LOW_STAMINA_PARAM{ "HasLowStamina" };
 static const std::string KILL_ENEMY_PARAM{ "KillEnemy" };
 static const std::string FLEE_FROM_ENEMY_PARAM{ "FleeFromEnemy" };
 static const std::string EXPLORE_PARAM{ "Explore" };
+static const std::string DESTROY_GARBAGE_PARAM{ "DestroyGarbage" };
 
 static const std::string IS_NOT_STUCK_PARAM{ "IsNotStuck" };

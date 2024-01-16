@@ -23,6 +23,8 @@ public:
 	virtual bool HasTarget(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const { return false; }
 	virtual bool CanUseItem(const class SurvivalAgentPlugin* pAgent, const Elite::Blackboard* pBlackboard) const { return true; }
 
+	virtual void OnAfterUseItem(class SurvivalAgentPlugin* pAgent, Elite::Blackboard* pBlackboard) const {}
+
 protected:
 	bool m_NeedsToFaceTarget{ false };
 };

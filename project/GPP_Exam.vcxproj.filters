@@ -26,6 +26,8 @@
     <ClCompile Include="Actions\SearchHouseAction.cpp" />
     <ClCompile Include="Actions\FleeFromEnemyAction.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="Actions\DestroyGarbageAction.cpp" />
+    <ClCompile Include="Actions\FindGarbageAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SurvivalAgentPlugin.h" />
@@ -55,5 +57,7 @@
     <ClInclude Include="Actions\SearchHouseAction.h" />
     <ClInclude Include="Actions\FleeFromEnemyAction.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="Actions\DestroyGarbageAction.h" />
+    <ClInclude Include="Actions\FindGarbageAction.h" />
   </ItemGroup>
 </Project>
