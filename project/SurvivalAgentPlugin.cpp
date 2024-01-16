@@ -163,18 +163,20 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float deltaTime)
 	//Use the Interface (IAssignmentInterface) to 'interface' with the AI_Framework
 	auto agentInfo = m_pInterface->Agent_GetInfo();
 
-	const float stuckDistanceSqrd{ 0.001f };
+	const float stuckDistanceSqrd{ 0.1f };
 	if (m_LastPosition.DistanceSquared(agentInfo.Position) > stuckDistanceSqrd)
 	{
+		m_Blackboard.SetData(IS_NOT_STUCK_PARAM, true);
 		m_LastPosition = agentInfo.Position;
 		m_CurrentStuckDuration = 0.0f;
 	}
 	else
 	{
-		m_CurrentStuckDuration += dt;
+		m_CurrentStuckDuration += deltaTime;
 
 		if (m_CurrentStuckDuration >= m_StuckDurationThreshold)
 		{
+			m_Blackboard.SetData(IS_NOT_STUCK_PARAM, false);
 			AbortCurrentPlan();
 			m_CurrentStuckDuration = 0.0f;
 
@@ -200,10 +202,11 @@ SteeringPlugin_Output SurvivalAgentPlugin::UpdateSteering(float deltaTime)
 
 	//Simple Seek Behaviour (towards Target)
 	steering.LinearVelocity = nextTargetPos - agentInfo.Position; //Desired Velocity
+	//steering.LinearVelocity = m_Destination - agentInfo.Position; //Desired Velocity
 	steering.LinearVelocity.Normalize(); //Normalize Desired Velocity
 	steering.LinearVelocity *= agentInfo.MaxLinearSpeed; //Rescale to Max Speed
 
-	if (IsApproximatelyAt(nextTargetPos))
+	if (IsApproximatelyAt(m_Destination))
 	{
 		steering.LinearVelocity = Elite::ZeroVector2;
 	}
@@ -325,6 +328,7 @@ void SurvivalAgentPlugin::InitializeGoals()
 	m_Goals.emplace(KILL_ENEMY_PARAM, 90.0f);
 	m_Goals.emplace(HAS_HIGH_ENERGY_PARAM, 70.0f);
 	m_Goals.emplace(HAS_HIGH_HEALTH_PARAM, 60.0f);
+	m_Goals.emplace(IS_NOT_STUCK_PARAM, 55.0f);
 	m_Goals.emplace(HAS_WEAPON_PARAM, 25.0f);
 	m_Goals.emplace(HAS_FOOD_PARAM, 10.0f);
 	m_Goals.emplace(HAS_MEDKIT_PARAM, 10.0f);
@@ -364,7 +368,6 @@ UINT SurvivalAgentPlugin::GetFirstAvailableInventorySpace() const
 
 void SurvivalAgentPlugin::AbortCurrentPlan()
 {
-	m_Destination = m_LastPosition;
 	m_CurrentPlan = std::queue<const GOAPAction*>();
 }
 

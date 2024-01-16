@@ -88,7 +88,7 @@ private:
 	std::queue<const class GOAPAction*> m_CurrentPlan{};
 
 	Elite::Vector2 m_LastPosition;
-	const float m_StuckDurationThreshold{ 3.0f };
+	const float m_StuckDurationThreshold{ 2.0f };
 	float m_CurrentStuckDuration{ 0.0f };
 };
 

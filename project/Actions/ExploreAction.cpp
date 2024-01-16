@@ -10,6 +10,7 @@
 
 ExploreAction::ExploreAction(const WorldInfo& worldInfo)
 {
+	AddEffect(IS_NOT_STUCK_PARAM, false);
 	AddPlanOnlyEffect(EXPLORE_PARAM, true);
 
 	// Very high cost to make sure this action is only used when we can do nothing else

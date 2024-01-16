@@ -42,3 +42,5 @@ static const std::string HAS_LOW_STAMINA_PARAM{ "HasLowStamina" };
 static const std::string KILL_ENEMY_PARAM{ "KillEnemy" };
 static const std::string FLEE_FROM_ENEMY_PARAM{ "FleeFromEnemy" };
 static const std::string EXPLORE_PARAM{ "Explore" };
+
+static const std::string IS_NOT_STUCK_PARAM{ "IsNotStuck" };
